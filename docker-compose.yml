@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: bookmanager-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-bookmanager}
+      POSTGRES_USER: ${DB_USERNAME:-bookmanager}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-bookmanager}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-bookmanager}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    container_name: bookmanager-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME:-bookmanager}
+      DB_USERNAME: ${DB_USERNAME:-bookmanager}
+      DB_PASSWORD: ${DB_PASSWORD:-bookmanager}
+      JWT_SECRET: ${JWT_SECRET:-troque-este-segredo-de-desenvolvimento-com-no-minimo-32-bytes}
+      JWT_EXPIRACAO: ${JWT_EXPIRACAO:-PT8H}
+    ports:
+      - "8080:8080"
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+    container_name: bookmanager-web
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:

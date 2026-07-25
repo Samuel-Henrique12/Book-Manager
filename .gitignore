@@ -1,9 +1,29 @@
-### IntelliJ IDEA ###
+.planejamento/
+.env
+.env.*
+!.env.example
+*.log
+backend/target/
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+out/
+frontend/out/
+next-env.d.ts
+.pnp.*
+npm-debug.log*
+.claude/
+yarn-debug.log*
+yarn-error.log*
+.idea/
+*.iml
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-
-### Eclipse ###
 .apt_generated
 .classpath
 .factorypath
@@ -14,16 +34,10 @@ out/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-
-### NetBeans ###
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-
-### VS Code ###
 .vscode/
-
-### Mac OS ###
 .DS_Store

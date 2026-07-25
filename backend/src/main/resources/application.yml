@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: book-manager
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/bookmanager}
+    username: ${DB_USERNAME:bookmanager}
+    password: ${DB_PASSWORD:bookmanager}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:trocar-secret-dev-com-32-bytes} #TODO: Trocar secret para produção
+    expiracao: ${JWT_EXPIRACAO:PT8H}
+    emissor: book-manager
+  cors:
+    origens: ${CORS_ORIGENS:http://localhost:3000}
