@@ -9,8 +9,8 @@ export default function Skeletons() {
         >
           <div className="mb-3 h-3.5 w-3/5 rounded bg-borda-forte" />
           <div className="mb-5 h-2.5 w-2/5 rounded bg-creme" />
-          <div className="mb-2 h-2.5 w-full rounded bg-[#efe8da]" />
-          <div className="h-2.5 w-4/5 rounded bg-[#efe8da]" />
+          <div className="mb-2 h-2.5 w-full rounded bg-superficie-2" />
+          <div className="h-2.5 w-4/5 rounded bg-superficie-2" />
         </div>
       ))}
     </div>

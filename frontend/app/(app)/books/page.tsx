@@ -13,6 +13,7 @@ import Paginacao from "@/components/Paginacao";
 import Skeletons from "@/components/Skeletons";
 import EstadoVazio from "@/components/EstadoVazio";
 import ModalConfirmacao from "@/components/ModalConfirmacao";
+import CampoFormulario from "@/components/CampoFormulario";
 
 const TAMANHO = 8;
 
@@ -93,7 +94,7 @@ export default function PaginaLivros() {
             {total} {total === 1 ? "livro" : "livros"}
           </p>
         </div>
-        <div className="inline-flex gap-0.5 rounded-[11px] bg-[#ebe3d3] p-1">
+        <div className="inline-flex gap-0.5 rounded-[11px] bg-creme p-1">
           <BotaoLayout ativo={layout === "tabela"} onClick={() => setLayout("tabela")} icone={<Table2 size={15} />}>
             Tabela
           </BotaoLayout>
@@ -104,25 +105,21 @@ export default function PaginaLivros() {
       </div>
 
       <div className="mb-5 flex flex-wrap items-center gap-3.5">
-        <div className="relative min-w-[240px] flex-1">
-          <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#b0a897]">
-            <Search size={18} strokeWidth={2} />
-          </span>
-          <input
-            type="text"
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar por título..."
-            className="w-full rounded-[10px] border border-borda-forte bg-superficie py-2.5 pl-[42px] pr-3.5 text-[15px] transition focus:border-terracota focus:shadow-[0_0_0_3px_rgba(192,69,31,0.12)]"
-          />
-        </div>
+        <CampoFormulario
+          className="min-w-[240px] flex-1"
+          rotulo="Buscar por título"
+          placeholder="Buscar por título..."
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          icone={<Search size={18} strokeWidth={2} />}
+        />
         {layout === "cards" && (
           <div className="flex items-center gap-2">
             <span className="text-[13px] font-semibold text-suave">Ordenar</span>
             <select
               value={`${sortCampo}-${sortDir}`}
               onChange={(e) => aoSelecionarOrdenacao(e.target.value)}
-              className="cursor-pointer rounded-[10px] border border-borda-forte bg-superficie px-3 py-2.5 text-[14px]"
+              className="h-[56px] cursor-pointer rounded-xl border border-borda bg-superficie px-3 text-[14px] outline-none transition hover:border-borda-forte focus:border-terracota"
             >
               <option value="titulo-asc">Título (A–Z)</option>
               <option value="titulo-desc">Título (Z–A)</option>

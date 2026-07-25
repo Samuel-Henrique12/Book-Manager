@@ -6,9 +6,12 @@ import { useForm, type FieldValues, type Path, type UseFormSetError } from "reac
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { BookMarked, Loader2 } from "lucide-react";
+import { Check, Loader2, Lock, Mail, User } from "lucide-react";
 import { entrar, registrar } from "@/lib/contas";
 import { ApiError } from "@/lib/api";
+import Logotipo from "@/components/Logotipo";
+import CampoFormulario from "@/components/CampoFormulario";
+import PainelLivros from "@/components/login/PainelLivros";
 
 // Schemas de Validação com Zod
 const loginSchema = z.object({
@@ -24,23 +27,17 @@ const registroSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 type RegistroForm = z.infer<typeof registroSchema>;
 
-// Classes de Estilo
-const CLASSE_INPUT =
-  "w-full rounded-[10px] border border-borda-forte bg-superficie px-3.5 py-3 text-[15px] text-tinta transition focus:border-terracota focus:shadow-[0_0_0_3px_rgba(192,69,31,0.12)]";
-const CLASSE_INPUT_ERRO = "border-erro bg-[#fbeee9]";
-const CLASSE_LABEL = "mb-1.5 block text-[13px] font-semibold text-[#5c554b]";
-const CLASSE_ERRO = "mt-1.5 text-[13px] text-erro";
 const CLASSE_BOTAO =
-  "mt-6 flex w-full items-center justify-center gap-2.5 rounded-[10px] bg-terracota py-3.5 text-[15px] font-semibold text-white transition hover:bg-terracota-escuro disabled:opacity-70";
+  "mt-7 flex h-[56px] w-full items-center justify-center gap-2.5 rounded-xl bg-terracota text-[16px] font-semibold text-white transition hover:bg-terracota-escuro focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracota disabled:opacity-70";
 
 export default function PaginaLogin() {
   const [modo, setModo] = useState<"login" | "registro">("login");
 
   return (
-    <div className="grid min-h-screen grid-cols-1 md:grid-cols-[1.05fr_1fr]">
-      <PainelMarca />
-      <div className="flex items-center justify-center p-10">
-        <div className="w-full max-w-[380px]">
+    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[46fr_54fr]">
+      <div className="flex items-center justify-center px-6 py-14 sm:px-10 lg:px-14 xl:px-20">
+        <div className="w-full max-w-[430px]" style={{ animation: "rise 0.5s ease-out both" }}>
+          <Logotipo tamanho="md" className="mb-11" />
           {modo === "login" ? (
             <FormularioLogin aoTrocar={() => setModo("registro")} />
           ) : (
@@ -48,52 +45,37 @@ export default function PaginaLogin() {
           )}
         </div>
       </div>
+      <PainelLivros className="hidden lg:block" />
     </div>
   );
 }
 
-function PainelMarca() {
-  const lombadas = [
-    { h: 96, c: "#c0451f" },
-    { h: 78, c: "#2f6b4f" },
-    { h: 104, c: "#b08313" },
-    { h: 70, c: "#3b5ba5" },
-    { h: 88, c: "#7a3e6b" },
-    { h: 62, c: "#8a5a2b" },
-  ];
+// Título
+function Cabecalho({
+  linha1,
+  linha2,
+  subtitulo,
+}: {
+  linha1: string;
+  linha2: string;
+  subtitulo: string;
+}) {
   return (
-    <div className="relative hidden flex-col justify-between overflow-hidden bg-painel p-14 text-papel md:flex">
-      <div className="relative z-10 flex items-center gap-3">
-        <div className="flex h-[38px] w-[38px] items-center justify-center rounded-[9px] bg-terracota text-papel">
-          <BookMarked size={20} strokeWidth={1.8} />
-        </div>
-        <span className="font-serif text-[22px] font-medium">Book Manager</span>
-      </div>
-      <div className="relative z-10 max-w-[440px]">
-        <p className="mb-4 font-serif text-[40px] leading-[1.18] text-pretty">
-          Toda a sua estante, organizada em um só lugar.
-        </p>
-        <p className="text-[16px] leading-relaxed text-[#c9c0ae]">
-          Cadastre, busque e mantenha seus livros sempre à mão — com uma interface pensada nos
-          detalhes.
-        </p>
-      </div>
-      <div className="relative z-10 flex h-[110px] items-end gap-2">
-        {lombadas.map((l, i) => (
-          <div
-            key={i}
-            className="w-[26px] rounded-t"
-            style={{ height: l.h, background: l.c }}
-          />
-        ))}
-      </div>
-      <div className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(192,69,31,0.35),transparent_70%)]" />
-    </div>
+    <>
+      <h1 className="font-serif text-[42px] font-medium leading-[1.07] tracking-[-0.02em] xl:text-[50px]">
+        <span className="block text-tinta">{linha1}</span>
+        <span className="block text-terracota">{linha2}</span>
+      </h1>
+      <p className="mb-9 mt-4 max-w-[330px] text-[16px] leading-relaxed text-tinta-2">
+        {subtitulo}
+      </p>
+    </>
   );
 }
 
 function FormularioLogin({ aoTrocar }: { aoTrocar: () => void }) {
   const router = useRouter();
+  const [lembrar, setLembrar] = useState(true);
   const {
     register,
     handleSubmit,
@@ -103,7 +85,7 @@ function FormularioLogin({ aoTrocar }: { aoTrocar: () => void }) {
 
   async function aoEnviar(dados: LoginForm) {
     try {
-      await entrar(dados);
+      await entrar(dados, lembrar);
       toast.success("Login realizado com sucesso");
       router.push("/books");
       router.refresh();
@@ -114,40 +96,53 @@ function FormularioLogin({ aoTrocar }: { aoTrocar: () => void }) {
 
   return (
     <>
-      <h1 className="mb-1.5 font-serif text-[32px] font-medium">Entrar</h1>
-      <p className="mb-7 text-[15px] text-suave">Acesse sua biblioteca pessoal.</p>
+      <Cabecalho
+        linha1="Grandes histórias"
+        linha2="sempre com você"
+        subtitulo="Descubra, leia e transforme ideias em novos mundos."
+      />
+
       <form onSubmit={handleSubmit(aoEnviar)} noValidate>
-        <label className={CLASSE_LABEL}>E-mail</label>
-        <input
-          type="email"
+        <CampoFormulario
+          rotulo="E-mail"
+          placeholder="E-mail"
+          tipo="email"
           autoComplete="email"
-          placeholder="voce@exemplo.com"
-          className={`${CLASSE_INPUT} ${errors.email ? CLASSE_INPUT_ERRO : ""}`}
+          icone={<Mail size={19} strokeWidth={1.7} />}
+          erro={errors.email?.message}
           {...register("email")}
         />
-        {errors.email && <p className={CLASSE_ERRO}>{errors.email.message}</p>}
 
-        <label className={`${CLASSE_LABEL} mt-[18px]`}>Senha</label>
-        <input
-          type="password"
+        <CampoFormulario
+          className="mt-3.5"
+          rotulo="Senha"
+          placeholder="Senha"
+          senha
           autoComplete="current-password"
-          placeholder="••••••••"
-          className={`${CLASSE_INPUT} ${errors.senha ? CLASSE_INPUT_ERRO : ""}`}
+          icone={<Lock size={19} strokeWidth={1.7} />}
+          erro={errors.senha?.message}
           {...register("senha")}
         />
-        {errors.senha && <p className={CLASSE_ERRO}>{errors.senha.message}</p>}
+
+        <div className="mt-5 flex items-center justify-between gap-4">
+          <CaixaLembrar marcada={lembrar} aoMudar={setLembrar} />
+          {/* TODO: Fluxo de Recuperação de Senha — a API ainda não expõe o endpoint */}
+          <span className="cursor-not-allowed text-[14px] font-medium text-terracota opacity-90">
+            Esqueceu sua senha?
+          </span>
+        </div>
 
         <button type="submit" disabled={isSubmitting} className={CLASSE_BOTAO}>
-          {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+          {isSubmitting && <Loader2 size={17} className="animate-spin" />}
           {isSubmitting ? "Entrando..." : "Entrar"}
         </button>
       </form>
-      <p className="mt-6 text-center text-[14px] text-suave">
-        Não tem conta?{" "}
-        <button onClick={aoTrocar} className="font-semibold text-terracota hover:underline">
-          Criar conta
-        </button>
-      </p>
+
+      <Rodape
+        pergunta="Não tem uma conta?"
+        acao="Criar conta"
+        aoTrocar={aoTrocar}
+      />
     </>
   );
 }
@@ -174,51 +169,105 @@ function FormularioRegistro({ aoTrocar }: { aoTrocar: () => void }) {
 
   return (
     <>
-      <h1 className="mb-1.5 font-serif text-[32px] font-medium">Criar conta</h1>
-      <p className="mb-7 text-[15px] text-suave">Leva menos de um minuto.</p>
+      <Cabecalho
+        linha1="Sua estante começa"
+        linha2="em um minuto"
+        subtitulo="Crie sua conta e mantenha cada leitura sempre à mão."
+      />
+
       <form onSubmit={handleSubmit(aoEnviar)} noValidate>
-        <label className={CLASSE_LABEL}>Nome</label>
-        <input
-          type="text"
+        <CampoFormulario
+          rotulo="Nome"
+          placeholder="Nome"
           autoComplete="name"
-          placeholder="Seu nome"
-          className={`${CLASSE_INPUT} ${errors.nome ? CLASSE_INPUT_ERRO : ""}`}
+          icone={<User size={19} strokeWidth={1.7} />}
+          erro={errors.nome?.message}
           {...register("nome")}
         />
-        {errors.nome && <p className={CLASSE_ERRO}>{errors.nome.message}</p>}
 
-        <label className={`${CLASSE_LABEL} mt-[18px]`}>E-mail</label>
-        <input
-          type="email"
+        <CampoFormulario
+          className="mt-3.5"
+          rotulo="E-mail"
+          placeholder="E-mail"
+          tipo="email"
           autoComplete="email"
-          placeholder="voce@exemplo.com"
-          className={`${CLASSE_INPUT} ${errors.email ? CLASSE_INPUT_ERRO : ""}`}
+          icone={<Mail size={19} strokeWidth={1.7} />}
+          erro={errors.email?.message}
           {...register("email")}
         />
-        {errors.email && <p className={CLASSE_ERRO}>{errors.email.message}</p>}
 
-        <label className={`${CLASSE_LABEL} mt-[18px]`}>Senha</label>
-        <input
-          type="password"
+        <CampoFormulario
+          className="mt-3.5"
+          rotulo="Senha"
+          placeholder="Senha (mínimo 4 caracteres)"
+          senha
           autoComplete="new-password"
-          placeholder="Mínimo 4 caracteres"
-          className={`${CLASSE_INPUT} ${errors.senha ? CLASSE_INPUT_ERRO : ""}`}
+          icone={<Lock size={19} strokeWidth={1.7} />}
+          erro={errors.senha?.message}
           {...register("senha")}
         />
-        {errors.senha && <p className={CLASSE_ERRO}>{errors.senha.message}</p>}
 
         <button type="submit" disabled={isSubmitting} className={CLASSE_BOTAO}>
-          {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+          {isSubmitting && <Loader2 size={17} className="animate-spin" />}
           {isSubmitting ? "Criando..." : "Criar conta"}
         </button>
       </form>
-      <p className="mt-6 text-center text-[14px] text-suave">
-        Já tem conta?{" "}
-        <button onClick={aoTrocar} className="font-semibold text-terracota hover:underline">
-          Entrar
-        </button>
-      </p>
+
+      <Rodape pergunta="Já tem uma conta?" acao="Entrar" aoTrocar={aoTrocar} />
     </>
+  );
+}
+
+// CheckBox de Lembrar-me
+function CaixaLembrar({
+  marcada,
+  aoMudar,
+}: {
+  marcada: boolean;
+  aoMudar: (valor: boolean) => void;
+}) {
+  return (
+    <label className="flex cursor-pointer select-none items-center gap-2.5 text-[14px] text-tinta-2">
+      <span className="relative flex h-[19px] w-[19px] items-center justify-center">
+        <input
+          type="checkbox"
+          checked={marcada}
+          onChange={(e) => aoMudar(e.target.checked)}
+          className="peer h-[19px] w-[19px] cursor-pointer appearance-none rounded-[6px] border border-borda-forte bg-superficie transition checked:border-terracota checked:bg-terracota"
+        />
+        <Check
+          size={12}
+          strokeWidth={3.4}
+          aria-hidden="true"
+          className="pointer-events-none absolute text-white opacity-0 transition peer-checked:opacity-100"
+        />
+      </span>
+      Lembrar-me
+    </label>
+  );
+}
+
+// Switch de Entrar e Criar Conta
+function Rodape({
+  pergunta,
+  acao,
+  aoTrocar,
+}: {
+  pergunta: string;
+  acao: string;
+  aoTrocar: () => void;
+}) {
+  return (
+    <p className="mt-8 text-center text-[14px] text-suave">
+      {pergunta}{" "}
+      <button
+        type="button"
+        onClick={aoTrocar}
+        className="font-semibold text-terracota transition hover:text-terracota-escuro hover:underline"
+      >
+        {acao}
+      </button>
+    </p>
   );
 }
 

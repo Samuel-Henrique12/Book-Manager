@@ -53,8 +53,10 @@ function BotaoAcao({ tipo, onClick }: { tipo: "editar" | "excluir"; onClick: () 
     <button
       onClick={onClick}
       title={editar ? "Editar" : "Excluir"}
-      className={`flex h-[30px] w-[30px] items-center justify-center rounded-lg border border-borda-forte bg-superficie-2 text-[#5c554b] transition ${
-        editar ? "hover:bg-white hover:text-terracota" : "hover:border-[#e6c6ba] hover:bg-[#fbeee9] hover:text-erro"
+      className={`flex h-[30px] w-[30px] items-center justify-center rounded-lg border border-borda-forte bg-superficie-2 text-tinta-2 transition ${
+        editar
+          ? "hover:bg-superficie hover:text-terracota"
+          : "hover:border-erro/40 hover:bg-erro-lavagem hover:text-erro"
       }`}
     >
       {editar ? <Pencil size={14} strokeWidth={1.9} /> : <Trash2 size={14} strokeWidth={1.9} />}

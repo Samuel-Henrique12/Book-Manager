@@ -18,7 +18,7 @@ export default function Paginacao({ pagina, totalPaginas, aoAnterior, aoProxima 
   const base =
     "flex h-[38px] w-[38px] items-center justify-center rounded-[10px] border bg-superficie transition";
   const ativo = "border-borda-forte text-tinta hover:bg-creme cursor-pointer";
-  const inativo = "border-creme text-[#c9c0ae] cursor-not-allowed";
+  const inativo = "border-creme text-suave-2 opacity-60 cursor-not-allowed";
 
   const primeira = pagina <= 0;
   const ultima = pagina >= totalPaginas - 1;
@@ -33,7 +33,7 @@ export default function Paginacao({ pagina, totalPaginas, aoAnterior, aoProxima 
       >
         <ChevronLeft size={16} />
       </button>
-      <span className="text-[14px] font-medium text-[#5c554b]">
+      <span className="text-[14px] font-medium text-tinta-2">
         Página {pagina + 1} de {totalPaginas}
       </span>
       <button

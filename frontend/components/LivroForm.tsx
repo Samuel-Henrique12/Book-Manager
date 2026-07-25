@@ -37,9 +37,9 @@ interface Props {
 
 // Classes de Estilo
 const CLASSE_INPUT =
-  "w-full rounded-[10px] border border-borda-forte bg-superficie px-3.5 py-3 text-[15px] text-tinta transition focus:border-terracota focus:shadow-[0_0_0_3px_rgba(192,69,31,0.12)]";
-const CLASSE_INPUT_ERRO = "border-erro bg-[#fbeee9]";
-const CLASSE_LABEL = "mb-1.5 block text-[13px] font-semibold text-[#5c554b]";
+  "w-full rounded-xl border border-borda bg-superficie px-3.5 py-3 text-[15px] text-tinta outline-none transition hover:border-borda-forte focus:border-terracota focus:shadow-[0_0_0_3px_var(--color-terracota-lavagem)]";
+const CLASSE_INPUT_ERRO = "border-erro bg-erro-lavagem";
+const CLASSE_LABEL = "mb-1.5 block text-[13px] font-semibold text-tinta-2";
 const CLASSE_ERRO = "mt-1.5 text-[13px] text-erro";
 
 // Component LivroForm
@@ -145,7 +145,7 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
 
             <div className="mb-5 max-w-[200px]">
               <label className={CLASSE_LABEL}>
-                Ano <span className="font-normal text-[#b0a897]">(opcional)</span>
+                Ano <span className="font-normal text-suave-2">(opcional)</span>
               </label>
               <input
                 type="text"
@@ -160,7 +160,7 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
 
             <div className="mb-7">
               <label className={CLASSE_LABEL}>
-                Descrição <span className="font-normal text-[#b0a897]">(opcional)</span>
+                Descrição <span className="font-normal text-suave-2">(opcional)</span>
               </label>
               <textarea
                 rows={4}

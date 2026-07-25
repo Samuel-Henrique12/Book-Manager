@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { BookMarked, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import { SimboloLivro } from "@/components/Logotipo";
 
 // Component pra Exibir State Vazio da Estante de Livros
 interface Props {
@@ -27,9 +28,9 @@ export default function EstadoVazio({ variante, aoLimpar }: Props) {
   }
 
   return (
-    <div className="rounded-[18px] border border-dashed border-[#dcd2be] bg-superficie px-5 py-[70px] text-center">
-      <div className="mx-auto mb-5 flex h-[66px] w-[66px] items-center justify-center rounded-2xl bg-creme text-[#b79a5e]">
-        <BookMarked size={30} strokeWidth={1.6} />
+    <div className="rounded-[18px] border border-dashed border-borda-forte bg-superficie px-5 py-[70px] text-center">
+      <div className="mx-auto mb-5 flex h-[66px] w-[66px] items-center justify-center rounded-2xl bg-terracota-lavagem text-terracota">
+        <SimboloLivro tamanho={32} />
       </div>
       <h2 className="mb-2 font-serif text-[26px] font-medium">Sua estante está vazia</h2>
       <p className="mb-6 text-[15px] text-suave">

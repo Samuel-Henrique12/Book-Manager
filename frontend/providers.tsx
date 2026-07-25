@@ -21,7 +21,13 @@ export default function Providers({ children }: { children: ReactNode }) {
       {children}
       <Toaster
         position="bottom-center"
-        toastOptions={{ style: { background: "#211e19", color: "#f4efe3", border: "none" } }}
+        toastOptions={{
+          style: {
+            background: "var(--color-painel)",
+            color: "var(--color-painel-texto)",
+            border: "none",
+          },
+        }}
       />
     </QueryClientProvider>
   );

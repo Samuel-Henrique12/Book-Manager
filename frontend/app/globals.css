@@ -1,20 +1,37 @@
 @import "tailwindcss";
 
 @theme {
-  --color-papel: #f4efe3;
-  --color-tinta: #211e19;
-  --color-terracota: #c0451f;
-  --color-terracota-escuro: #a93a18;
-  --color-superficie: #fcfaf3;
-  --color-superficie-2: #f2ebdc;
-  --color-borda: #e9e1d1;
-  --color-borda-forte: #e4dccb;
-  --color-suave: #857d6f;
-  --color-suave-2: #9b927f;
-  --color-creme: #efe8da;
+  /* Superfícies */
+  --color-papel: #f7f4ef;
+  --color-superficie: #ffffff;
+  --color-superficie-2: #f2eee7;
+  --color-creme: #eae5dc;
+
+  /* Tinta */
+  --color-tinta: #1b1a18;
+  --color-tinta-2: #46433e;
+  --color-suave: #78736b;
+  --color-suave-2: #a39d93;
+
+  /* Marca */
+  --color-terracota: #d4521c;
+  --color-terracota-escuro: #b8420f;
+  --color-terracota-lavagem: #f7ece5;
+
+  /* Bordas */
+  --color-borda: #ebe6dd;
+  --color-borda-forte: #ded7cb;
+
+  /* Feedback */
   --color-erro: #c4472b;
+  --color-erro-lavagem: #fbeee9;
   --color-verde: #4e9e76;
-  --color-painel: #211e19;
+
+  /* Painel Escuro */
+  --color-painel: #1b1a18;
+  --color-painel-texto: #e9e4d9;
+  --color-painel-suave: #8a8378;
+  --color-painel-rotulo: #6e675c;
 
   --font-sans: var(--font-instrument), system-ui, sans-serif;
   --font-serif: var(--font-newsreader), Georgia, serif;
@@ -26,7 +43,12 @@ body {
 }
 
 ::placeholder {
-  color: #b0a897;
+  color: var(--color-suave-2);
+}
+
+::selection {
+  background-color: var(--color-terracota-lavagem);
+  color: var(--color-terracota-escuro);
 }
 
 @keyframes sk {
@@ -41,4 +63,28 @@ body {
 @keyframes fade {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* Entrada da Cena de Livros */
+@keyframes surgir-alto {
+  from { opacity: 0; transform: translateY(38px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Oscilação Contínua da Cena */
+@keyframes flutuar {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+  100% { transform: translateY(0); }
+}
+
+/* Respeito a Movimento Reduzido */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

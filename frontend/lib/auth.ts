@@ -3,13 +3,20 @@ import Cookies from "js-cookie";
 // Cookies
 const TOKEN_COOKIE = "bm_token";
 const NOME_COOKIE = "bm_nome";
-const OPCOES = { expires: 1, sameSite: "lax" as const };
+
+  // Persistência do Cookie de Sessão
+// Sem "expires" o cookie vive só enquanto o navegador estiver aberto.
+function opcoes(lembrar: boolean) {
+  return lembrar
+    ? { expires: 1, sameSite: "lax" as const }
+    : { sameSite: "lax" as const };
+}
 
 // Funções de Sessão
-export function salvarSessao(token: string, nome?: string) {
-  Cookies.set(TOKEN_COOKIE, token, OPCOES);
+export function salvarSessao(token: string, nome?: string, lembrar = true) {
+  Cookies.set(TOKEN_COOKIE, token, opcoes(lembrar));
   if (nome) {
-    Cookies.set(NOME_COOKIE, nome, OPCOES);
+    Cookies.set(NOME_COOKIE, nome, opcoes(lembrar));
   }
 }
 

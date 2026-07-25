@@ -23,7 +23,7 @@ export default function ModalConfirmacao({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(33,30,25,0.5)] p-5 backdrop-blur-[3px]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-painel/55 p-5 backdrop-blur-[3px]"
       style={{ animation: "fade 0.18s ease" }}
       onClick={aoCancelar}
     >
@@ -32,7 +32,7 @@ export default function ModalConfirmacao({
         style={{ animation: "rise 0.22s ease" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-4 flex h-[46px] w-[46px] items-center justify-center rounded-xl bg-[#fbeee9] text-erro">
+        <div className="mb-4 flex h-[46px] w-[46px] items-center justify-center rounded-xl bg-erro-lavagem text-erro">
           <Trash2 size={22} strokeWidth={1.8} />
         </div>
         <h3 className="mb-2 font-serif text-[22px] font-medium">Excluir livro?</h3>
@@ -50,7 +50,7 @@ export default function ModalConfirmacao({
           <button
             onClick={aoConfirmar}
             disabled={carregando}
-            className="flex items-center gap-2 rounded-[10px] bg-erro px-4 py-2.5 text-[14px] font-semibold text-white transition hover:bg-[#a93a22] disabled:opacity-70"
+            className="flex items-center gap-2 rounded-[10px] bg-erro px-4 py-2.5 text-[14px] font-semibold text-white transition hover:brightness-90 disabled:opacity-70"
           >
             {carregando && <Loader2 size={15} className="animate-spin" />}
             Excluir
