@@ -1,13 +1,20 @@
 # Render Blueprint — API Spring Boot (Docker)
 # Banco de Dados via Neon
+# Caminhos da Raiz do Repositorio:
 services:
   - type: web
     name: book-manager-api
     runtime: docker
-    rootDir: backend
-    dockerfilePath: ./Dockerfile
+    branch: main
+    region: virginia
     plan: free
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
     healthCheckPath: /actuator/health
+    buildFilter:
+      paths:
+        - backend/**
+        - render.yaml
     envVars:
       - key: DB_URL
         sync: false
@@ -21,3 +28,5 @@ services:
         value: PT8H
       - key: CORS_ORIGENS
         sync: false
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=70.0 -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1

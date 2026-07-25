@@ -180,6 +180,8 @@ Deploy **100% gratuito** (sem cartão) com **Vercel** (frontend) + **Render** (A
 > - **Frontend:** _(Vercel — a preencher)_
 > - **API:** _(Render — a preencher)_
 
+> ⏱️ **Primeiro acesso pode demorar ~30–60s.** Nos planos gratuitos a API hiberna após 15 min sem uso e o banco escala a zero; a primeira requisição acorda os dois. Depois disso a navegação é normal.
+
 ---
 
 ## 🗺️ Roadmap

@@ -5,6 +5,12 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/bookmanager}
     username: ${DB_USERNAME:bookmanager}
     password: ${DB_PASSWORD:bookmanager}
+    # Pool Enxuto pra Banco Serverless (Permite Escala a Zero)
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 0
+      idle-timeout: 60000
+      max-lifetime: 900000
   jpa:
     hibernate:
       ddl-auto: validate

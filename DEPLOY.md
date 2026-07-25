@@ -28,9 +28,9 @@ git push origin <sua-branch>
 
 ## 1. Banco de dados — Neon
 
-1. Acesse **https://neon.tech** → entre com o GitHub → **Create project** (região mais próxima, ex.: US East).
-2. Copie a **connection string** (formato `postgresql://usuario:senha@host/dbname?sslmode=require`).
-3. Anote os três valores para usar no Render (converta para JDBC):
+1. Acesse **https://neon.tech** → entre com o GitHub → **Create project** → região **AWS us-east-1 (N. Virginia)** (a mesma da API no Render, para reduzir latência).
+2. Copie a **connection string** (algo como `postgresql://usuario:senha@host/dbname?sslmode=require&channel_binding=require`).
+3. Converta para JDBC e anote os três valores para usar no Render:
 
    | Variável | Valor |
    |---|---|
@@ -38,7 +38,7 @@ git push origin <sua-branch>
    | `DB_USERNAME` | `<usuario>` |
    | `DB_PASSWORD` | `<senha>` |
 
-   > O `jdbc:` na frente e o `?sslmode=require` no final são **obrigatórios**. O host/usuário/senha vêm da string do Neon.
+   > **Três detalhes obrigatórios:** prefixo `jdbc:` no início; `?sslmode=require` no final; e **remover o `&channel_binding=require`** que o Neon inclui — é um parâmetro do `libpq` que o driver JDBC não usa. Usuário e senha saem da URL e vão para as variáveis próprias.
 
 ---
 
@@ -48,11 +48,11 @@ O repositório já traz um **`render.yaml`** (Blueprint) que configura o serviç
 
 1. Acesse **https://render.com** → entre com o GitHub.
 2. **New → Blueprint** → conecte este repositório → o Render lê o `render.yaml` e cria o serviço `book-manager-api`.
-   - _(Alternativa manual: **New → Web Service** → repositório → **Root Directory** = `backend` → **Runtime** = Docker.)_
+   - _(Alternativa manual: **New → Web Service** → repositório → **Runtime** = Docker → **Dockerfile Path** = `backend/Dockerfile` → **Docker Build Context Directory** = `backend`.)_
 3. Em **Environment**, preencha as variáveis marcadas como "sync: false":
    - `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` → valores do Neon (passo 1)
    - `CORS_ORIGENS` → deixe `http://localhost:3000` **por enquanto** (ajustamos no passo 4)
-   - `JWT_SECRET` já é gerado automaticamente; `JWT_EXPIRACAO` já vem como `PT8H`.
+   - `JWT_SECRET` já é gerado automaticamente; `JWT_EXPIRACAO` (`PT8H`) e `JAVA_TOOL_OPTIONS` já vêm definidos no Blueprint.
 4. **Create** → aguarde o primeiro build (o Render compila o `Dockerfile`; leva alguns minutos).
 5. Ao terminar, copie a **URL pública** da API (ex.: `https://book-manager-api.onrender.com`).
    - Teste: abra `https://<sua-api>.onrender.com/swagger-ui.html`.
@@ -110,6 +110,9 @@ Para trocar a branch que dispara o deploy: Render → _Settings → Branch_; Ver
 | `JWT_SECRET` | _(gerado pelo Render)_ |
 | `JWT_EXPIRACAO` | `PT8H` |
 | `CORS_ORIGENS` | `https://book-manager.vercel.app` |
+| `JAVA_TOOL_OPTIONS` | `-XX:MaxRAMPercentage=70.0 -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1` |
+
+> `JAVA_TOOL_OPTIONS` ajusta a JVM ao container gratuito (512 MB / 0.1 CPU): heap em 70% da RAM (o padrão é 25%), GC serial e JIT só em C1 — evita `OutOfMemoryError` e acelera o boot. Já vem no `render.yaml`.
 
 **Vercel (frontend):**
 | Variável | Exemplo |
