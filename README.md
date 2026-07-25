@@ -43,7 +43,21 @@ Sobe **tudo** (banco + API + frontend), aguarda ficar pronto e abre o navegador 
 .\serve.ps1          # ou: .\serve.ps1 up
 ```
 
-Outros comandos: `.\serve.ps1 down` (parar) · `reset` (zerar dados) · `logs api|web|db` · `status` · `dev` (hot reload) · `help`.
+Outros comandos: `.\serve.ps1 down` (parar) · `reset` (zerar dados) · `logs api|web|db` · `status` · `portas` (quem está ocupando 3000/8080/5432) · `dev` (hot reload) · `help`.
+
+#### Comandos globais (opcional)
+
+Para chamar de qualquer diretório, sem depender do `cd`:
+
+```powershell
+.\instalar-comandos.ps1     # registra as funções no perfil do PowerShell
+```
+
+Passam a existir `book-manager-up`, `-down`, `-dev`, `-stop`, `-restart`, `-reset`, `-rebuild`, `-logs`, `-status`, `-portas` e a forma genérica `book-manager <comando>`. Abra uma **nova** janela do PowerShell depois de instalar. Para desfazer: `.\instalar-comandos.ps1 -Remover`.
+
+#### Portas
+
+Os padrões são `3000` (web), `8080` (API) e `5432` (banco). Se outro projeto já usar alguma delas, crie um `.env` a partir do `.env.example` e ajuste `WEB_PORT`, `API_PORT`, `DB_PORT` — junto com `NEXT_PUBLIC_API_URL` e `CORS_ORIGENS`.
 
 ### Opção B — Docker Compose (qualquer SO)
 

@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+.serve-dev.pids
 *.log
 backend/target/
 target/

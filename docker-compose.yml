@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${DB_USERNAME:-bookmanager}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-bookmanager}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
@@ -28,8 +28,9 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-bookmanager}
       JWT_SECRET: ${JWT_SECRET:-troque-este-segredo-de-desenvolvimento-com-no-minimo-32-bytes}
       JWT_EXPIRACAO: ${JWT_EXPIRACAO:-PT8H}
+      CORS_ORIGENS: ${CORS_ORIGENS:-http://localhost:3000}
     ports:
-      - "8080:8080"
+      - "${API_PORT:-8080}:8080"
 
   web:
     build:
@@ -40,7 +41,7 @@ services:
     depends_on:
       - api
     ports:
-      - "3000:3000"
+      - "${WEB_PORT:-3000}:3000"
 
 volumes:
   db_data:
