@@ -38,6 +38,9 @@ export default function EditarLivro() {
         autor: data.autor,
         ano: data.ano != null ? String(data.ano) : "",
         descricao: data.descricao ?? "",
+        urlCapa: data.urlCapa ?? "",
+        isbn: data.isbn ?? "",
+        totalPaginas: data.totalPaginas != null ? String(data.totalPaginas) : "",
       }}
     />
   );

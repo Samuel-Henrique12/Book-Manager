@@ -31,6 +31,49 @@ export interface LivroInput {
   autor: string;
   ano?: number | null;
   descricao?: string | null;
+  urlCapa?: string | null;
+  isbn?: string | null;
+  totalPaginas?: number | null;
+}
+
+// TODO :
+// Contratos das Fases 2-5 do Backend
+// Ainda não existem na API — ver .planejamento/README.md
+
+export type StatusLeitura = "QUERO_LER" | "LENDO" | "LIDO" | "ABANDONADO";
+
+export interface Categoria {
+  slug: string;
+  nome: string;
+}
+
+export interface EstanteItem {
+  status: StatusLeitura;
+  favorito: boolean;
+  nota: number | null;
+  paginaAtual: number | null;
+  totalPaginas: number | null;
+  categorias: string[];
+}
+
+export type TipoEvento =
+  | "ADICIONOU"
+  | "INICIOU"
+  | "TERMINOU"
+  | "AVALIOU"
+  | "FAVORITOU"
+  | "ABANDONOU"
+  | "PROGREDIU";
+
+export interface EventoTimeline {
+  id: string;
+  tipo: TipoEvento;
+  livroId: number;
+  livroTitulo: string;
+  quando: string;
+  nota?: number | null;
+  comentario?: string | null;
+  spoiler?: boolean;
 }
 
 // Interface para Resposta de Token

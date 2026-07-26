@@ -1,0 +1,26 @@
+import type { StatusLeitura, TipoEvento } from "./tipos";
+
+export const ROTULO_STATUS: Record<StatusLeitura, string> = {
+  QUERO_LER: "Quero ler",
+  LENDO: "Lendo",
+  LIDO: "Lido",
+  ABANDONADO: "Abandonado",
+};
+
+// Cores do Badge de Status
+export const CLASSE_STATUS: Record<StatusLeitura, string> = {
+  QUERO_LER: "bg-superficie-2 text-suave",
+  LENDO: "bg-terracota-lavagem text-terracota-escuro",
+  LIDO: "bg-verde/12 text-verde",
+  ABANDONADO: "bg-creme text-suave-2",
+};
+
+export const ROTULO_EVENTO: Record<TipoEvento, string> = {
+  ADICIONOU: "adicionou à estante",
+  INICIOU: "começou a ler",
+  TERMINOU: "terminou de ler",
+  AVALIOU: "avaliou",
+  FAVORITOU: "favoritou",
+  ABANDONOU: "abandonou",
+  PROGREDIU: "avançou na leitura de",
+};

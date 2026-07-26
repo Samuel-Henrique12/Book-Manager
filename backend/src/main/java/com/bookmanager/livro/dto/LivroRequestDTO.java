@@ -20,6 +20,15 @@ public record LivroRequestDTO(
         Integer ano,
 
         @Size(max = 5000, message = "A descrição deve ter no máximo 5000 caracteres")
-        String descricao
+        String descricao,
+
+        @Size(max = 500, message = "A URL da capa deve ter no máximo 500 caracteres")
+        String urlCapa,
+
+        @Size(max = 20, message = "O ISBN deve ter no máximo 20 caracteres")
+        String isbn,
+
+        @Min(value = 1, message = "O total de páginas deve ser maior que zero")
+        Integer totalPaginas
 ) {
 }

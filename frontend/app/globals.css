@@ -71,6 +71,12 @@ body {
   to { opacity: 1; transform: none; }
 }
 
+/* Entrada da Gaveta Lateral */
+@keyframes deslizar-lateral {
+  from { opacity: 0; transform: translateX(-100%); }
+  to { opacity: 1; transform: none; }
+}
+
 /* Oscilação Contínua da Cena */
 @keyframes flutuar {
   0% { transform: translateY(0); }

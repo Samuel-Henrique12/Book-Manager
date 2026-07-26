@@ -14,7 +14,7 @@ export function listarLivros(params: ParamsListagem) {
   const query = new URLSearchParams();
   if (params.titulo) query.set("titulo", params.titulo);
   query.set("page", String(params.page ?? 0));
-  query.set("size", String(params.size ?? 8));
+  query.set("size", String(params.size ?? 12));
   if (params.sort) query.set("sort", params.sort);
   return apiFetch<RespostaPaginada<LivroResumo>>(`/books?${query.toString()}`);
 }

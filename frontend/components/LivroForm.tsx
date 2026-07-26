@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -7,13 +8,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft } from "lucide-react";
+import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react";
 import { atualizarLivro, criarLivro } from "@/lib/livros";
 import { ApiError } from "@/lib/api";
 import type { LivroInput } from "@/lib/tipos";
 import LivroPreview from "@/components/LivroPreview";
+import CampoFormulario, { CampoTexto } from "@/components/CampoFormulario";
 
-// Validate do Form com Zod
+// Validação do Formulário
 const schema = z.object({
   titulo: z.string().trim().min(1, "Informe o título").max(250, "Máximo de 250 caracteres"),
   autor: z.string().trim().min(1, "Informe o autor").max(200, "Máximo de 200 caracteres"),
@@ -24,45 +26,62 @@ const schema = z.object({
       message: "Informe um ano entre 1 e 2100",
     }),
   descricao: z.string().max(5000, "Máximo de 5000 caracteres"),
+  urlCapa: z
+    .string()
+    .trim()
+    .max(500, "Máximo de 500 caracteres")
+    .refine((v) => v === "" || /^https?:\/\/\S+$/i.test(v), {
+      message: "Informe uma URL começando com http:// ou https://",
+    }),
+  isbn: z.string().trim().max(20, "Máximo de 20 caracteres"),
+  totalPaginas: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || (/^\d{1,5}$/.test(v) && +v >= 1), {
+      message: "Informe um número de páginas válido",
+    }),
 });
 
-type FormValues = z.infer<typeof schema>;
+export type ValoresLivro = z.infer<typeof schema>;
 
-// Props do Component LivroForm
+const VAZIO: ValoresLivro = {
+  titulo: "",
+  autor: "",
+  ano: "",
+  descricao: "",
+  urlCapa: "",
+  isbn: "",
+  totalPaginas: "",
+};
+
 interface Props {
   id?: number;
   seed?: number | string;
-  valoresIniciais?: FormValues;
+  valoresIniciais?: ValoresLivro;
 }
 
-// Classes de Estilo
-const CLASSE_INPUT =
-  "w-full rounded-xl border border-borda bg-superficie px-3.5 py-3 text-[15px] text-tinta outline-none transition hover:border-borda-forte focus:border-terracota focus:shadow-[0_0_0_3px_var(--color-terracota-lavagem)]";
-const CLASSE_INPUT_ERRO = "border-erro bg-erro-lavagem";
-const CLASSE_LABEL = "mb-1.5 block text-[13px] font-semibold text-tinta-2";
-const CLASSE_ERRO = "mt-1.5 text-[13px] text-erro";
-
-// Component LivroForm
+// Formulário de Livro
 export default function LivroForm({ id, seed, valoresIniciais }: Props) {
   const edicao = id != null;
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [detalhesAbertos, setDetalhesAbertos] = useState(
+    Boolean(valoresIniciais?.urlCapa || valoresIniciais?.isbn || valoresIniciais?.totalPaginas),
+  );
 
-  // React Hook Form
   const {
     register,
     handleSubmit,
     watch,
     setError,
     formState: { errors },
-  } = useForm<FormValues>({
+  } = useForm<ValoresLivro>({
     resolver: zodResolver(schema),
-    defaultValues: valoresIniciais ?? { titulo: "", autor: "", ano: "", descricao: "" },
+    defaultValues: valoresIniciais ?? VAZIO,
   });
 
   const valores = watch();
 
-  // React Query Mutation pra Salvar Livro
   const salvar = useMutation({
     mutationFn: (dto: LivroInput) => (edicao ? atualizarLivro(id, dto) : criarLivro(dto)),
     onSuccess: () => {
@@ -82,12 +101,16 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
     },
   });
 
-  function aoEnviar(v: FormValues) {
+  // Enviar Campos pro Put e Mapper do BackEnd Sobrescrever com Null as Omissões
+  function aoEnviar(v: ValoresLivro) {
     salvar.mutate({
       titulo: v.titulo.trim(),
       autor: v.autor.trim(),
       ano: v.ano ? Number(v.ano) : null,
       descricao: v.descricao.trim() || null,
+      urlCapa: v.urlCapa.trim() || null,
+      isbn: v.isbn.trim() || null,
+      totalPaginas: v.totalPaginas ? Number(v.totalPaginas) : null,
     });
   }
 
@@ -98,85 +121,125 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
         className="mb-4 inline-flex items-center gap-1.5 text-[14px] font-semibold text-suave transition hover:text-terracota"
       >
         <ChevronLeft size={15} />
-        Voltar para a biblioteca
+        Voltar para a estante
       </Link>
 
-      <div className="max-w-[900px]">
-        <h1 className="mb-1 font-serif text-[32px] font-medium">
+      <div className="max-w-[980px]">
+        <h1 className="mb-1 font-serif text-[32px] font-medium tracking-[-0.015em]">
           {edicao ? "Editar livro" : "Novo livro"}
         </h1>
         <p className="mb-7 text-[15px] text-suave">
           {edicao
             ? "Atualize as informações deste livro."
-            : "Adicione um novo título à sua biblioteca."}
+            : "Adicione um novo título à sua estante."}
         </p>
 
-        <div className="grid grid-cols-1 items-start gap-7 md:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid grid-cols-1 items-start gap-7 md:grid-cols-[minmax(0,1fr)_300px]">
           <form
             onSubmit={handleSubmit(aoEnviar)}
             noValidate
-            className="rounded-2xl border border-borda bg-superficie p-7"
+            className="rounded-2xl border border-borda bg-superficie p-6 sm:p-7"
           >
-            <div className="mb-5">
-              <label className={CLASSE_LABEL}>
-                Título <span className="text-terracota">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Ex.: Dom Casmurro"
-                className={`${CLASSE_INPUT} ${errors.titulo ? CLASSE_INPUT_ERRO : ""}`}
-                {...register("titulo")}
-              />
-              {errors.titulo && <p className={CLASSE_ERRO}>{errors.titulo.message}</p>}
-            </div>
+            <CampoFormulario
+              rotuloVisivel
+              obrigatorio
+              className="mb-5"
+              rotulo="Título"
+              placeholder="Ex.: Dom Casmurro"
+              erro={errors.titulo?.message}
+              {...register("titulo")}
+            />
 
-            <div className="mb-5">
-              <label className={CLASSE_LABEL}>
-                Autor <span className="text-terracota">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Ex.: Machado de Assis"
-                className={`${CLASSE_INPUT} ${errors.autor ? CLASSE_INPUT_ERRO : ""}`}
-                {...register("autor")}
-              />
-              {errors.autor && <p className={CLASSE_ERRO}>{errors.autor.message}</p>}
-            </div>
+            <CampoFormulario
+              rotuloVisivel
+              obrigatorio
+              className="mb-5"
+              rotulo="Autor"
+              placeholder="Ex.: Machado de Assis"
+              erro={errors.autor?.message}
+              {...register("autor")}
+            />
 
-            <div className="mb-5 max-w-[200px]">
-              <label className={CLASSE_LABEL}>
-                Ano <span className="font-normal text-suave-2">(opcional)</span>
-              </label>
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={4}
-                placeholder="Ex.: 1899"
-                className={`${CLASSE_INPUT} ${errors.ano ? CLASSE_INPUT_ERRO : ""}`}
-                {...register("ano")}
-              />
-              {errors.ano && <p className={CLASSE_ERRO}>{errors.ano.message}</p>}
-            </div>
+            <CampoFormulario
+              rotuloVisivel
+              dica="(opcional)"
+              className="mb-5 max-w-[200px]"
+              rotulo="Ano"
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="Ex.: 1899"
+              erro={errors.ano?.message}
+              {...register("ano")}
+            />
 
-            <div className="mb-7">
-              <label className={CLASSE_LABEL}>
-                Descrição <span className="font-normal text-suave-2">(opcional)</span>
-              </label>
-              <textarea
-                rows={4}
-                placeholder="Uma breve sinopse ou nota sobre o livro..."
-                className={`${CLASSE_INPUT} resize-y leading-relaxed ${errors.descricao ? CLASSE_INPUT_ERRO : ""}`}
-                {...register("descricao")}
-              />
-              {errors.descricao && <p className={CLASSE_ERRO}>{errors.descricao.message}</p>}
+            <CampoTexto
+              rotuloVisivel
+              dica="(opcional)"
+              className="mb-6"
+              rotulo="Descrição"
+              placeholder="Uma breve sinopse ou nota sobre o livro..."
+              erro={errors.descricao?.message}
+              {...register("descricao")}
+            />
+
+            {/* Detalhes Adicionais */}
+            <div className="mb-7 rounded-xl border border-borda">
+              <button
+                type="button"
+                onClick={() => setDetalhesAbertos((v) => !v)}
+                aria-expanded={detalhesAbertos}
+                className="flex w-full items-center justify-between px-4 py-3.5 text-[14px] font-semibold text-tinta-2 transition hover:text-tinta"
+              >
+                Detalhes adicionais
+                <ChevronDown
+                  size={17}
+                  className={`text-suave transition ${detalhesAbertos ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              {detalhesAbertos && (
+                <div className="border-t border-borda p-4">
+                  <CampoFormulario
+                    rotuloVisivel
+                    dica="(opcional)"
+                    className="mb-4"
+                    rotulo="Capa"
+                    placeholder="https://exemplo.com/capa.jpg"
+                    erro={errors.urlCapa?.message}
+                    {...register("urlCapa")}
+                  />
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <CampoFormulario
+                      rotuloVisivel
+                      dica="(opcional)"
+                      rotulo="ISBN"
+                      placeholder="978-85-359-0277-5"
+                      erro={errors.isbn?.message}
+                      {...register("isbn")}
+                    />
+                    <CampoFormulario
+                      rotuloVisivel
+                      dica="(opcional)"
+                      rotulo="Total de páginas"
+                      inputMode="numeric"
+                      maxLength={5}
+                      placeholder="Ex.: 256"
+                      erro={errors.totalPaginas?.message}
+                      {...register("totalPaginas")}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3">
               <button
                 type="submit"
                 disabled={salvar.isPending}
-                className="rounded-[10px] bg-terracota px-5 py-3 text-[15px] font-semibold text-white transition hover:bg-terracota-escuro disabled:opacity-70"
+                className="flex items-center gap-2 rounded-xl bg-terracota px-5 py-3 text-[15px] font-semibold text-white transition hover:bg-terracota-escuro disabled:opacity-70"
               >
+                {salvar.isPending && <Loader2 size={16} className="animate-spin" />}
                 {salvar.isPending
                   ? "Salvando..."
                   : edicao
@@ -185,7 +248,7 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
               </button>
               <Link
                 href="/books"
-                className="rounded-[10px] border border-borda-forte px-5 py-3 text-[15px] font-semibold transition hover:bg-creme"
+                className="rounded-xl border border-borda-forte px-5 py-3 text-[15px] font-semibold transition hover:bg-creme"
               >
                 Cancelar
               </Link>
@@ -201,10 +264,11 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
               autor={valores.autor}
               ano={valores.ano}
               descricao={valores.descricao}
+              urlCapa={valores.urlCapa}
               seed={seed ?? id ?? valores.titulo}
             />
             <p className="mt-3.5 px-0.5 text-[12.5px] leading-relaxed text-suave-2">
-              É assim que o livro aparecerá na sua biblioteca.
+              É assim que o livro aparecerá na sua estante.
             </p>
           </aside>
         </div>

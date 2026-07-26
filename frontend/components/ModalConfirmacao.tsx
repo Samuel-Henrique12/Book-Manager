@@ -1,33 +1,60 @@
 "use client";
 
+import { useEffect, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Loader2, Trash2 } from "lucide-react";
 
-// Props do Component ModalConfirmacao
-interface Props {
-  aberto: boolean;
-  titulo: string;
-  carregando?: boolean;
-  aoCancelar: () => void;
-  aoConfirmar: () => void;
-}
-
-// Component ModalConfirmacao
+// Modal de Confirmação
 export default function ModalConfirmacao({
   aberto,
   titulo,
+  descricao,
+  rotuloConfirmar = "Excluir",
   carregando,
   aoCancelar,
   aoConfirmar,
-}: Props) {
-  if (!aberto) return null;
+}: {
+  aberto: boolean;
+  titulo: string;
+  descricao: ReactNode;
+  rotuloConfirmar?: string;
+  carregando?: boolean;
+  aoCancelar: () => void;
+  aoConfirmar: () => void;
+}) {
+  const confirmarRef = useRef<HTMLButtonElement>(null);
 
-  return (
+  // Escape, Foco Inicial e Trava de Rolagem
+  useEffect(() => {
+    if (!aberto) return;
+
+    function aoTeclar(evento: KeyboardEvent) {
+      if (evento.key === "Escape") aoCancelar();
+    }
+
+    const rolagemAnterior = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", aoTeclar);
+    confirmarRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = rolagemAnterior;
+      window.removeEventListener("keydown", aoTeclar);
+    };
+  }, [aberto, aoCancelar]);
+
+  if (!aberto || typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-painel/55 p-5 backdrop-blur-[3px]"
       style={{ animation: "fade 0.18s ease" }}
       onClick={aoCancelar}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-modal"
         className="w-full max-w-[400px] rounded-2xl bg-superficie p-7 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.4)]"
         style={{ animation: "rise 0.22s ease" }}
         onClick={(e) => e.stopPropagation()}
@@ -35,28 +62,33 @@ export default function ModalConfirmacao({
         <div className="mb-4 flex h-[46px] w-[46px] items-center justify-center rounded-xl bg-erro-lavagem text-erro">
           <Trash2 size={22} strokeWidth={1.8} />
         </div>
-        <h3 className="mb-2 font-serif text-[22px] font-medium">Excluir livro?</h3>
-        <p className="mb-6 text-[15px] leading-relaxed text-suave">
-          Tem certeza que deseja remover <strong className="text-tinta">{titulo}</strong>? Esta ação
-          não pode ser desfeita.
-        </p>
+
+        <h3 id="titulo-modal" className="mb-2 font-serif text-[22px] font-medium">
+          {titulo}
+        </h3>
+        <p className="mb-6 text-[15px] leading-relaxed text-suave">{descricao}</p>
+
         <div className="flex justify-end gap-3">
           <button
+            type="button"
             onClick={aoCancelar}
-            className="rounded-[10px] border border-borda-forte px-4 py-2.5 text-[14px] font-semibold transition hover:bg-creme"
+            className="rounded-xl border border-borda-forte px-4 py-2.5 text-[14px] font-semibold transition hover:bg-creme"
           >
             Cancelar
           </button>
           <button
+            ref={confirmarRef}
+            type="button"
             onClick={aoConfirmar}
             disabled={carregando}
-            className="flex items-center gap-2 rounded-[10px] bg-erro px-4 py-2.5 text-[14px] font-semibold text-white transition hover:brightness-90 disabled:opacity-70"
+            className="flex items-center gap-2 rounded-xl bg-erro px-4 py-2.5 text-[14px] font-semibold text-white transition hover:brightness-90 disabled:opacity-70"
           >
             {carregando && <Loader2 size={15} className="animate-spin" />}
-            Excluir
+            {rotuloConfirmar}
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
