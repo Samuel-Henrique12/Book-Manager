@@ -39,6 +39,18 @@ public class ManipuladorGlobalDeExcecoes {
         return montar(HttpStatus.UNAUTHORIZED, "Não autorizado", ex.getMessage());
     }
 
+    // Exception Handler de Conta Não Confirmada (403)
+    @ExceptionHandler(ContaNaoConfirmadaException.class)
+    public ProblemDetail tratarContaNaoConfirmada(ContaNaoConfirmadaException ex) {
+        return montar(HttpStatus.FORBIDDEN, "Conta não confirmada", ex.getMessage());
+    }
+
+    // Exception Handler de Falha no Envio de E-mail (503)
+    @ExceptionHandler(FalhaNoEnvioDeEmailException.class)
+    public ProblemDetail tratarFalhaDeEmail(FalhaNoEnvioDeEmailException ex) {
+        return montar(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de e-mail indisponível", ex.getMessage());
+    }
+
     // Exception Handler de Validação de Campos (400)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail tratarValidacao(MethodArgumentNotValidException ex) {

@@ -24,6 +24,20 @@ spring:
     locations: classpath:db/migration
   jackson:
     default-property-inclusion: non_null
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_AUTH:false}
+          starttls:
+            enable: ${MAIL_STARTTLS:false}
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 server:
   port: ${PORT:8080}
@@ -41,8 +55,18 @@ springdoc:
 
 app:
   jwt:
-    secret: ${JWT_SECRET:trocar-secret-dev-com-32-bytes} #TODO: Trocar secret para produção
+    secret: ${JWT_SECRET:dev-apenas-nunca-use-isto-em-producao-0123456789}
     expiracao: ${JWT_EXPIRACAO:PT8H}
     emissor: book-manager
   cors:
     origens: ${CORS_ORIGENS:http://localhost:3000}
+  email:
+    # smtp = Mailpit no docker-compose | brevo = API HTTP (prod)
+    provedor: ${EMAIL_PROVEDOR:smtp}
+    chave-api: ${MAIL_API_KEY:}
+    remetente: ${MAIL_FROM:nao-responda@bookmanager.local}
+    nome-remetente: ${MAIL_FROM_NOME:Book Manager}
+    url-base: ${APP_URL_BASE:http://localhost:3000}
+  verificacao:
+    validade-confirmacao: PT24H
+    validade-redefinicao: PT1H

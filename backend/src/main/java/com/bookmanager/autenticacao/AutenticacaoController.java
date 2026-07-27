@@ -1,7 +1,11 @@
 package com.bookmanager.autenticacao;
 
+import com.bookmanager.autenticacao.dto.EmailRequestDTO;
 import com.bookmanager.autenticacao.dto.LoginRequestDTO;
+import com.bookmanager.autenticacao.dto.MensagemRespostaDTO;
+import com.bookmanager.autenticacao.dto.RedefinirSenhaRequestDTO;
 import com.bookmanager.autenticacao.dto.RegistroRequestDTO;
+import com.bookmanager.autenticacao.dto.TokenRequestDTO;
 import com.bookmanager.autenticacao.dto.TokenRespostaDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// Endpoints de Autenticação (Registro e Login)
+// Endpoints de Autenticacao
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -20,15 +24,40 @@ public class AutenticacaoController {
 
     private final AutenticacaoService autenticacaoService;
 
-    // Endpoint para Registro de Novo Usuario
+    // Registro de Nova Conta
     @PostMapping("/register")
-    public ResponseEntity<TokenRespostaDTO> registrar(@Valid @RequestBody RegistroRequestDTO requisicao) {
+    public ResponseEntity<MensagemRespostaDTO> registrar(@Valid @RequestBody RegistroRequestDTO requisicao) {
         return ResponseEntity.status(HttpStatus.CREATED).body(autenticacaoService.registrar(requisicao));
     }
 
-    // Endpoint para Login
+    // Login
     @PostMapping("/login")
     public ResponseEntity<TokenRespostaDTO> login(@Valid @RequestBody LoginRequestDTO requisicao) {
         return ResponseEntity.ok(autenticacaoService.login(requisicao));
+    }
+
+    // Confirmacao de E-mail
+    @PostMapping("/confirmar")
+    public ResponseEntity<MensagemRespostaDTO> confirmar(@Valid @RequestBody TokenRequestDTO requisicao) {
+        return ResponseEntity.ok(autenticacaoService.confirmarEmail(requisicao));
+    }
+
+    // Reenvio da Confirmacao
+    @PostMapping("/reenviar-confirmacao")
+    public ResponseEntity<MensagemRespostaDTO> reenviar(@Valid @RequestBody EmailRequestDTO requisicao) {
+        return ResponseEntity.ok(autenticacaoService.reenviarConfirmacao(requisicao));
+    }
+
+    // Pedido de Redefinicao de Senha
+    @PostMapping("/senha/esqueci")
+    public ResponseEntity<MensagemRespostaDTO> esqueciSenha(@Valid @RequestBody EmailRequestDTO requisicao) {
+        return ResponseEntity.ok(autenticacaoService.solicitarRedefinicao(requisicao));
+    }
+
+    // Conclusao da Redefinicao de Senha
+    @PostMapping("/senha/redefinir")
+    public ResponseEntity<MensagemRespostaDTO> redefinirSenha(
+            @Valid @RequestBody RedefinirSenhaRequestDTO requisicao) {
+        return ResponseEntity.ok(autenticacaoService.redefinirSenha(requisicao));
     }
 }

@@ -99,18 +99,54 @@ Para trocar a branch que dispara o deploy: Render → _Settings → Branch_; Ver
 
 ---
 
+## Envio de e-mail em produção
+
+O cadastro exige confirmação por e-mail e existe fluxo de redefinição de senha. Em desenvolvimento isso roda no **Mailpit** (SMTP falso no `docker-compose`), mas **em produção o SMTP não funciona**: o plano *free* do Render [bloqueia tráfego de saída nas portas 25, 465 e 587](https://render.com/changelog/free-web-services-will-no-longer-allow-outbound-traffic-to-smtp-ports).
+
+Por isso a aplicação tem dois adaptadores, escolhidos por `EMAIL_PROVEDOR`:
+
+| Valor | Implementação | Onde |
+|---|---|---|
+| `smtp` (padrão) | `ServicoEmailSmtp` — Mailpit | Local |
+| `brevo` | `ServicoEmailBrevo` — API HTTP em `api.brevo.com` (porta 443, não bloqueada) | Render |
+
+### Passo a passo (Brevo — 300 e-mails/dia, grátis, sem cartão)
+
+1. Criar conta em **[brevo.com](https://www.brevo.com/)** e confirmar o e-mail de cadastro.
+2. **Verificar um remetente**: _Senders, Domains & Dedicated IPs → Senders → Add a sender_. Informe um e-mail seu; a Brevo manda um código de validação. Sem remetente verificado, todo envio é recusado.
+3. **Gerar a chave**: _menu do perfil → SMTP & API → API Keys → Generate a new API key_. Copie na hora — ela não é exibida de novo.
+4. No Render, em _Environment_, preencher as variáveis marcadas como `sync: false` no Blueprint:
+   - `MAIL_API_KEY` = a chave gerada
+   - `MAIL_FROM` = o e-mail verificado no passo 2
+   - `APP_URL_BASE` = a URL da Vercel, **sem barra no final**
+5. Redeploy. No log deve aparecer `E-mail 'Confirme seu e-mail — Book Manager' enviado pela Brevo`.
+
+> **`APP_URL_BASE` é o detalhe que mais quebra.** É ele que monta os links dentro do e-mail. Se ficar no padrão, toda mensagem enviada em produção aponta para `http://localhost:3000` e ninguém consegue confirmar a conta.
+
+> Trocar de provedor depois é barato: `ServicoEmail` é uma interface, e só o adaptador muda.
+
+---
+
 ## Resumo das variáveis de ambiente
 
 **Render (API):**
 | Variável | Exemplo |
 |---|---|
+| `SPRING_PROFILES_ACTIVE` | `prod` |
 | `DB_URL` | `jdbc:postgresql://ep-xxx.neon.tech/neondb?sslmode=require` |
 | `DB_USERNAME` | `neondb_owner` |
 | `DB_PASSWORD` | `••••••` |
 | `JWT_SECRET` | _(gerado pelo Render)_ |
 | `JWT_EXPIRACAO` | `PT8H` |
 | `CORS_ORIGENS` | `https://book-manager.vercel.app` |
+| `EMAIL_PROVEDOR` | `brevo` |
+| `MAIL_API_KEY` | `xkeysib-••••••` |
+| `MAIL_FROM` | `seu-remetente-verificado@gmail.com` |
+| `MAIL_FROM_NOME` | `Book Manager` |
+| `APP_URL_BASE` | `https://book-manager.vercel.app` |
 | `JAVA_TOOL_OPTIONS` | `-XX:MaxRAMPercentage=70.0 -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1` |
+
+> Com `SPRING_PROFILES_ACTIVE=prod`, a aplicação **se recusa a iniciar** se `JWT_SECRET` estiver ausente, curto demais ou com o valor de exemplo do repositório. É proposital: subir com o segredo padrão permitiria a qualquer pessoa forjar um token válido.
 
 > `JAVA_TOOL_OPTIONS` ajusta a JVM ao container gratuito (512 MB / 0.1 CPU): heap em 70% da RAM (o padrão é 25%), GC serial e JIT só em C1 — evita `OutOfMemoryError` e acelera o boot. Já vem no `render.yaml`.
 

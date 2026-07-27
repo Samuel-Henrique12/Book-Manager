@@ -57,7 +57,15 @@ Passam a existir `book-manager-up`, `-down`, `-dev`, `-stop`, `-restart`, `-rese
 
 #### Portas
 
-Os padrões são `3000` (web), `8080` (API) e `5432` (banco). Se outro projeto já usar alguma delas, crie um `.env` a partir do `.env.example` e ajuste `WEB_PORT`, `API_PORT`, `DB_PORT` — junto com `NEXT_PUBLIC_API_URL` e `CORS_ORIGENS`.
+Os padrões são `3000` (web), `8080` (API), `5432` (banco) e `8025` (caixa de e-mail). Se outro projeto já usar alguma delas, crie um `.env` a partir do `.env.example` e ajuste `WEB_PORT`, `API_PORT`, `DB_PORT`, `MAIL_UI_PORT` — junto com `NEXT_PUBLIC_API_URL`, `CORS_ORIGENS` e `APP_URL_BASE`.
+
+#### E-mails em desenvolvimento
+
+O cadastro exige confirmação por e-mail, e há fluxo de redefinição de senha. Em dev, o compose sobe um **[Mailpit](https://mailpit.axllent.org/)** como servidor SMTP falso — nenhuma mensagem sai para a internet e não é preciso credencial.
+
+Abra **http://localhost:8025** para ver as mensagens que a aplicação enviou e clicar nos links de confirmação e de redefinição.
+
+Em produção, aponte as variáveis `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_AUTH`, `MAIL_STARTTLS` e `MAIL_FROM` para um SMTP real, e `APP_URL_BASE` para a URL pública do frontend (é ela que monta os links dos e-mails).
 
 ### Opção B — Docker Compose (qualquer SO)
 

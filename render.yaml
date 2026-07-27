@@ -16,6 +16,9 @@ services:
         - backend/**
         - render.yaml
     envVars:
+      # Perfil Ativador de Fail-Fast de Secrets (ValidadorDeSegredos)
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
       - key: DB_URL
         sync: false
       - key: DB_USERNAME
@@ -27,6 +30,18 @@ services:
       - key: JWT_EXPIRACAO
         value: PT8H
       - key: CORS_ORIGENS
+        sync: false
+      # E-mail por API HTTP
+      - key: EMAIL_PROVEDOR
+        value: brevo
+      - key: MAIL_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: MAIL_FROM_NOME
+        value: Book Manager
+      # URL do Front na Vercel
+      - key: APP_URL_BASE
         sync: false
       - key: JAVA_TOOL_OPTIONS
         value: -XX:MaxRAMPercentage=70.0 -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1

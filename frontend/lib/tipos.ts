@@ -76,6 +76,12 @@ export interface EventoTimeline {
   spoiler?: boolean;
 }
 
+// Resposta Simples dos Fluxos de E-mail
+export interface MensagemResposta {
+  mensagem: string;
+  email?: string | null;
+}
+
 // Interface para Resposta de Token
 export interface TokenResposta {
   token: string;

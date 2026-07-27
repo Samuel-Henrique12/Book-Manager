@@ -33,4 +33,7 @@ public class Usuario extends EntidadeAuditavel {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Perfil perfil;
+
+    @Column(name = "email_confirmado", nullable = false)
+    private boolean emailConfirmado;
 }

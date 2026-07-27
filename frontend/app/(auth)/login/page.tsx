@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, type FieldValues, type Path, type UseFormSetError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,9 +10,11 @@ import { toast } from "sonner";
 import { Check, Loader2, Lock, Mail, User } from "lucide-react";
 import { entrar, registrar } from "@/lib/contas";
 import { ApiError } from "@/lib/api";
-import Logotipo from "@/components/Logotipo";
+import { obterNome } from "@/lib/auth";
 import CampoFormulario from "@/components/CampoFormulario";
-import PainelLivros from "@/components/login/PainelLivros";
+import Cabecalho, { CLASSE_BOTAO } from "@/components/login/Cabecalho";
+import AvisoConfirmacao from "@/components/login/AvisoConfirmacao";
+import ModalBoasVindas from "@/components/login/ModalBoasVindas";
 
 // Schemas de Validação com Zod
 const loginSchema = z.object({
@@ -27,54 +30,69 @@ const registroSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 type RegistroForm = z.infer<typeof registroSchema>;
 
-const CLASSE_BOTAO =
-  "mt-7 flex h-[56px] w-full items-center justify-center gap-2.5 rounded-xl bg-terracota text-[16px] font-semibold text-white transition hover:bg-terracota-escuro focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracota disabled:opacity-70";
+type Pendencia = { email: string; jaCadastrado: boolean };
 
 export default function PaginaLogin() {
+  const router = useRouter();
   const [modo, setModo] = useState<"login" | "registro">("login");
+  const [pendencia, setPendencia] = useState<Pendencia | null>(null);
+  const [boasVindas, setBoasVindas] = useState<string | null>(null);
 
-  return (
-    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[46fr_54fr]">
-      <div className="flex items-center justify-center px-6 py-14 sm:px-10 lg:px-14 xl:px-20">
-        <div className="w-full max-w-[430px]" style={{ animation: "rise 0.5s ease-out both" }}>
-          <Logotipo tamanho="md" className="mb-11" />
-          {modo === "login" ? (
-            <FormularioLogin aoTrocar={() => setModo("registro")} />
-          ) : (
-            <FormularioRegistro aoTrocar={() => setModo("login")} />
-          )}
-        </div>
-      </div>
-      <PainelLivros className="hidden lg:block" />
-    </div>
-  );
-}
+  if (pendencia) {
+    return (
+      <AvisoConfirmacao
+        email={pendencia.email}
+        titulo={pendencia.jaCadastrado ? "Falta confirmar seu e-mail" : "Confirme seu e-mail"}
+        descricao={
+          pendencia.jaCadastrado
+            ? "Sua conta existe, mas ainda não foi ativada. O link foi enviado para"
+            : undefined
+        }
+        aoVoltar={() => {
+          setPendencia(null);
+          setModo("login");
+        }}
+      />
+    );
+  }
 
-// Título
-function Cabecalho({
-  linha1,
-  linha2,
-  subtitulo,
-}: {
-  linha1: string;
-  linha2: string;
-  subtitulo: string;
-}) {
   return (
     <>
-      <h1 className="font-serif text-[42px] font-medium leading-[1.07] tracking-[-0.02em] xl:text-[50px]">
-        <span className="block text-tinta">{linha1}</span>
-        <span className="block text-terracota">{linha2}</span>
-      </h1>
-      <p className="mb-9 mt-4 max-w-[330px] text-[16px] leading-relaxed text-tinta-2">
-        {subtitulo}
-      </p>
+      {modo === "login" ? (
+        <FormularioLogin
+          aoTrocar={() => setModo("registro")}
+          aoPendente={(email) => setPendencia({ email, jaCadastrado: true })}
+          aoEntrar={() => setBoasVindas(obterNome())}
+        />
+      ) : (
+        <FormularioRegistro
+          aoTrocar={() => setModo("login")}
+          aoRegistrar={(email) => setPendencia({ email, jaCadastrado: false })}
+        />
+      )}
+
+      {boasVindas && (
+        <ModalBoasVindas
+          nome={boasVindas}
+          aoConcluir={() => {
+            router.push("/books");
+            router.refresh();
+          }}
+        />
+      )}
     </>
   );
 }
 
-function FormularioLogin({ aoTrocar }: { aoTrocar: () => void }) {
-  const router = useRouter();
+function FormularioLogin({
+  aoTrocar,
+  aoPendente,
+  aoEntrar,
+}: {
+  aoTrocar: () => void;
+  aoPendente: (email: string) => void;
+  aoEntrar: () => void;
+}) {
   const [lembrar, setLembrar] = useState(true);
   const {
     register,
@@ -86,10 +104,13 @@ function FormularioLogin({ aoTrocar }: { aoTrocar: () => void }) {
   async function aoEnviar(dados: LoginForm) {
     try {
       await entrar(dados, lembrar);
-      toast.success("Login realizado com sucesso");
-      router.push("/books");
-      router.refresh();
+      aoEntrar();
     } catch (erro) {
+      // 403 de Conta Criada Mas Ainda Nõa Confirmada
+      if (erro instanceof ApiError && erro.status === 403) {
+        aoPendente(dados.email);
+        return;
+      }
       aplicarErro(erro, setError);
     }
   }
@@ -126,10 +147,12 @@ function FormularioLogin({ aoTrocar }: { aoTrocar: () => void }) {
 
         <div className="mt-5 flex items-center justify-between gap-4">
           <CaixaLembrar marcada={lembrar} aoMudar={setLembrar} />
-          {/* TODO: Fluxo de Recuperação de Senha — a API ainda não expõe o endpoint */}
-          <span className="cursor-not-allowed text-[14px] font-medium text-terracota opacity-90">
+          <Link
+            href="/esqueci-senha"
+            className="text-[14px] font-medium text-terracota transition hover:text-terracota-escuro hover:underline"
+          >
             Esqueceu sua senha?
-          </span>
+          </Link>
         </div>
 
         <button type="submit" disabled={isSubmitting} className={CLASSE_BOTAO}>
@@ -138,17 +161,18 @@ function FormularioLogin({ aoTrocar }: { aoTrocar: () => void }) {
         </button>
       </form>
 
-      <Rodape
-        pergunta="Não tem uma conta?"
-        acao="Criar conta"
-        aoTrocar={aoTrocar}
-      />
+      <Rodape pergunta="Não tem uma conta?" acao="Criar conta" aoTrocar={aoTrocar} />
     </>
   );
 }
 
-function FormularioRegistro({ aoTrocar }: { aoTrocar: () => void }) {
-  const router = useRouter();
+function FormularioRegistro({
+  aoTrocar,
+  aoRegistrar,
+}: {
+  aoTrocar: () => void;
+  aoRegistrar: (email: string) => void;
+}) {
   const {
     register,
     handleSubmit,
@@ -159,9 +183,7 @@ function FormularioRegistro({ aoTrocar }: { aoTrocar: () => void }) {
   async function aoEnviar(dados: RegistroForm) {
     try {
       await registrar(dados);
-      toast.success("Conta criada com sucesso");
-      router.push("/books");
-      router.refresh();
+      aoRegistrar(dados.email);
     } catch (erro) {
       aplicarErro(erro, setError);
     }
@@ -247,7 +269,7 @@ function CaixaLembrar({
   );
 }
 
-// Switch de Entrar e Criar Conta
+// Alternância entre Entrar e Criar Conta
 function Rodape({
   pergunta,
   acao,

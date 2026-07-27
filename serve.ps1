@@ -58,6 +58,7 @@ function Get-ValorEnv($chave, $padrao) {
 $portaApi = [int](Get-ValorEnv "API_PORT" "8080")
 $portaWeb = [int](Get-ValorEnv "WEB_PORT" "3000")
 $portaDb = [int](Get-ValorEnv "DB_PORT" "5432")
+$portaMail = [int](Get-ValorEnv "MAIL_UI_PORT" "8025")
 $nomeBanco = Get-ValorEnv "DB_NAME" "bookmanager"
 $usuarioBanco = Get-ValorEnv "DB_USERNAME" "bookmanager"
 $senhaBanco = Get-ValorEnv "DB_PASSWORD" "bookmanager"
@@ -66,7 +67,7 @@ $urlWeb = "http://localhost:$portaWeb"
 $urlSwagger = "$urlApi/swagger-ui.html"
 
 # Containers Deste Compose
-$containersProprios = @("bookmanager-db", "bookmanager-api", "bookmanager-web")
+$containersProprios = @("bookmanager-db", "bookmanager-api", "bookmanager-web", "bookmanager-mail")
 
 # Processos Fora do Docker
 $processosDev = @("node", "java", "javaw")
@@ -144,9 +145,10 @@ function Show-Portas {
     Write-Host "Porta  Servico     Ocupada por" -ForegroundColor DarkGray
     Write-Host "-----  ----------  -----------------------------------" -ForegroundColor DarkGray
     foreach ($item in @(
-            @{ Porta = $portaWeb; Rotulo = "frontend" },
-            @{ Porta = $portaApi; Rotulo = "backend " },
-            @{ Porta = $portaDb;  Rotulo = "banco   " })) {
+            @{ Porta = $portaWeb;  Rotulo = "frontend" },
+            @{ Porta = $portaApi;  Rotulo = "backend " },
+            @{ Porta = $portaDb;   Rotulo = "banco   " },
+            @{ Porta = $portaMail; Rotulo = "e-mail  " })) {
         $dono = Get-OcupanteDaPorta $item.Porta
         if ($null -eq $dono) {
             Write-Host ("{0,-6} {1,-11} livre" -f $item.Porta, $item.Rotulo) -ForegroundColor Green
@@ -166,9 +168,10 @@ function Show-Portas {
 function Test-PortasLivres {
     $bloqueios = @()
     foreach ($item in @(
-            @{ Porta = $portaWeb; Rotulo = "frontend" },
-            @{ Porta = $portaApi; Rotulo = "backend" },
-            @{ Porta = $portaDb;  Rotulo = "banco" })) {
+            @{ Porta = $portaWeb;  Rotulo = "frontend" },
+            @{ Porta = $portaApi;  Rotulo = "backend" },
+            @{ Porta = $portaDb;   Rotulo = "banco" },
+            @{ Porta = $portaMail; Rotulo = "e-mail" })) {
         $dono = Get-OcupanteDaPorta $item.Porta
         if ($null -eq $dono) { continue }
         if ($dono.Tipo -eq "container") {
@@ -245,6 +248,7 @@ function Show-Banner {
     Write-Host "   Web (frontend) : $urlWeb"     -ForegroundColor Cyan
     Write-Host "   API (backend)  : $urlApi"     -ForegroundColor Cyan
     Write-Host "   Swagger        : $urlSwagger" -ForegroundColor Cyan
+    Write-Host "   E-mails (dev)  : http://localhost:$portaMail" -ForegroundColor Cyan
     Write-Host "   Parar tudo     : book-manager-down (ou .\serve.ps1 down)" -ForegroundColor DarkGray
     Write-Host "===================================================" -ForegroundColor Green
     Write-Host ""

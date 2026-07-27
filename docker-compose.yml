@@ -16,12 +16,24 @@ services:
       timeout: 5s
       retries: 10
 
+  # SMTP de Dev: Caixa de Entrada em http://localhost:8025
+  mail:
+    image: axllent/mailpit:latest
+    container_name: bookmanager-mail
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    ports:
+      - "${MAIL_UI_PORT:-8025}:8025"
+
   api:
     build: ./backend
     container_name: bookmanager-api
     depends_on:
       db:
         condition: service_healthy
+      mail:
+        condition: service_started
     environment:
       DB_URL: jdbc:postgresql://db:5432/${DB_NAME:-bookmanager}
       DB_USERNAME: ${DB_USERNAME:-bookmanager}
@@ -29,6 +41,17 @@ services:
       JWT_SECRET: ${JWT_SECRET:-troque-este-segredo-de-desenvolvimento-com-no-minimo-32-bytes}
       JWT_EXPIRACAO: ${JWT_EXPIRACAO:-PT8H}
       CORS_ORIGENS: ${CORS_ORIGENS:-http://localhost:3000}
+      EMAIL_PROVEDOR: ${EMAIL_PROVEDOR:-smtp}
+      MAIL_API_KEY: ${MAIL_API_KEY:-}
+      MAIL_FROM_NOME: ${MAIL_FROM_NOME:-Book Manager}
+      MAIL_HOST: ${MAIL_HOST:-mail}
+      MAIL_PORT: ${MAIL_PORT:-1025}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_AUTH: ${MAIL_AUTH:-false}
+      MAIL_STARTTLS: ${MAIL_STARTTLS:-false}
+      MAIL_FROM: ${MAIL_FROM:-nao-responda@bookmanager.local}
+      APP_URL_BASE: ${APP_URL_BASE:-http://localhost:3000}
     ports:
       - "${API_PORT:-8080}:8080"
 

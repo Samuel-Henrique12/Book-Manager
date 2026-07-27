@@ -1,6 +1,8 @@
 package com.bookmanager.autenticacao.seguranca;
 
+import com.bookmanager.autenticacao.verificacao.PropriedadesVerificacao;
 import com.bookmanager.comum.config.PropriedadesCors;
+import com.bookmanager.comum.email.PropriedadesEmail;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -25,7 +27,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableConfigurationProperties({PropriedadesJwt.class, PropriedadesCors.class})
+@EnableConfigurationProperties({PropriedadesJwt.class, PropriedadesCors.class,
+        PropriedadesEmail.class, PropriedadesVerificacao.class})
 public class ConfiguracaoSeguranca {
 
     // Rotas Publicas (Sem Auth)

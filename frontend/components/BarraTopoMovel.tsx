@@ -37,9 +37,6 @@ export default function BarraTopoMovel() {
   return (
     <>
       <header className="sticky top-0 z-30 flex h-[62px] items-center justify-between border-b border-borda bg-papel/92 px-4 backdrop-blur-md lg:hidden">
-        <Link href="/" aria-label="Book Manager — início">
-          <Logotipo tamanho="sm" />
-        </Link>
         <button
           type="button"
           onClick={() => setAberta(true)}
@@ -49,6 +46,9 @@ export default function BarraTopoMovel() {
         >
           <Menu size={19} strokeWidth={2} />
         </button>
+        <Link href="/" aria-label="Book Manager — início">
+          <Logotipo tamanho="sm" />
+        </Link>
       </header>
 
       {aberta && (
