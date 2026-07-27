@@ -1,6 +1,7 @@
 package com.bookmanager.comum.config;
 
 import com.bookmanager.autenticacao.seguranca.PropriedadesJwt;
+import com.bookmanager.comum.email.PropriedadesEmail;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.Set;
@@ -31,13 +32,17 @@ public class ValidadorDeSegredos {
     );
 
     private final PropriedadesJwt propriedadesJwt;
+    private final PropriedadesEmail propriedadesEmail;
     private final Environment ambiente;
 
     @PostConstruct
     void validar() {
-        String segredo = propriedadesJwt.secret();
         boolean producao = List.of(ambiente.getActiveProfiles()).contains(PERFIL_PRODUCAO);
+        validarSegredoJwt(propriedadesJwt.secret(), producao);
+        validarProvedorDeEmail(propriedadesEmail.provedor(), producao);
+    }
 
+    private void validarSegredoJwt(String segredo, boolean producao) {
         if (!PLACEHOLDERS.contains(segredo)) {
             return;
         }
@@ -49,5 +54,13 @@ public class ValidadorDeSegredos {
         }
 
         log.warn("JWT_SECRET está com o valor de desenvolvimento. Nunca suba isso em produção.");
+    }
+
+    private void validarProvedorDeEmail(String provedor, boolean producao) {
+        if (producao && "smtp".equalsIgnoreCase(provedor)) {
+            throw new IllegalStateException(
+                    "EMAIL_PROVEDOR está como 'smtp' com o perfil 'prod' ativo, mas o plano free do Render "
+                            + "bloqueia as portas SMTP. Defina EMAIL_PROVEDOR=brevo e MAIL_API_KEY.");
+        }
     }
 }
