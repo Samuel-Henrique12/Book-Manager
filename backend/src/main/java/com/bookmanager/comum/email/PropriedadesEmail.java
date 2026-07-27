@@ -12,6 +12,12 @@ public record PropriedadesEmail(
         String urlBase
 ) {
     public PropriedadesEmail {
+        provedor = limpar(provedor);
+        chaveApi = limpar(chaveApi);
+        remetente = limpar(remetente);
+        nomeRemetente = limpar(nomeRemetente);
+        urlBase = limpar(urlBase);
+
         if (provedor == null || provedor.isBlank()) {
             provedor = "smtp";
         }
@@ -24,5 +30,9 @@ public record PropriedadesEmail(
         if (urlBase == null || urlBase.isBlank()) {
             urlBase = "http://localhost:3000";
         }
+    }
+
+    private static String limpar(String valor) {
+        return valor == null ? null : valor.strip();
     }
 }

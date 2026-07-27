@@ -2,12 +2,17 @@ package com.bookmanager.comum.email;
 
 import com.bookmanager.comum.excecao.FalhaNoEnvioDeEmailException;
 import jakarta.annotation.PostConstruct;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.http.HttpClient;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -20,6 +25,10 @@ public class ServicoEmailBrevo implements ServicoEmail {
 
     private static final String ENDPOINT = "https://api.brevo.com/v3/smtp/email";
 
+    // O motivo real vai para o log; o cliente recebe sempre a mesma frase
+    private static final String MENSAGEM_GENERICA =
+            "Não foi possível enviar o e-mail agora. Tente novamente em alguns instantes.";
+
     private final PropriedadesEmail propriedades;
     private final ModeloEmail modelo;
     private final RestClient cliente;
@@ -28,8 +37,10 @@ public class ServicoEmailBrevo implements ServicoEmail {
         this.propriedades = propriedades;
         this.modelo = modelo;
 
-        SimpleClientHttpRequestFactory fabrica = new SimpleClientHttpRequestFactory();
-        fabrica.setConnectTimeout(Duration.ofSeconds(5));
+        // Cliente do JDK: o SimpleClientHttpRequestFactory nao entrega o corpo das
+        // respostas de erro, e e justamente nele que a Brevo diz o motivo da recusa.
+        JdkClientHttpRequestFactory fabrica = new JdkClientHttpRequestFactory(
+                HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build());
         fabrica.setReadTimeout(Duration.ofSeconds(10));
 
         this.cliente = RestClient.builder()
@@ -70,13 +81,30 @@ public class ServicoEmailBrevo implements ServicoEmail {
                     // A chave Não Entra Em Log, Fica Só no Header
                     .header("api-key", propriedades.chaveApi())
                     .body(corpo)
-                    .retrieve()
-                    .toBodilessEntity();
-            log.info("E-mail '{}' enviado pela Brevo", mensagem.assunto());
+                    .exchange((requisicao, resposta) -> {
+                        HttpStatusCode status = resposta.getStatusCode();
+                        if (status.is2xxSuccessful()) {
+                            log.info("E-mail '{}' aceito pela Brevo (HTTP {})",
+                                    mensagem.assunto(), status.value());
+                            return true;
+                        }
+                        log.error("Brevo recusou o envio de '{}' — HTTP {} — remetente '{}' — resposta: {}",
+                                mensagem.assunto(), status.value(), propriedades.remetente(),
+                                lerCorpo(resposta));
+                        throw new FalhaNoEnvioDeEmailException(MENSAGEM_GENERICA);
+                    }, false);
         } catch (RestClientException ex) {
-            log.error("Falha ao enviar e-mail '{}' pela Brevo", mensagem.assunto(), ex);
-            throw new FalhaNoEnvioDeEmailException(
-                    "Não foi possível enviar o e-mail agora. Tente novamente em alguns instantes.");
+            log.error("Falha de rede ao falar com a Brevo ao enviar '{}'", mensagem.assunto(), ex);
+            throw new FalhaNoEnvioDeEmailException(MENSAGEM_GENERICA);
+        }
+    }
+
+    private String lerCorpo(RestClient.RequestHeadersSpec.ConvertibleClientHttpResponse resposta) {
+        try (InputStream fluxo = resposta.getBody()) {
+            String corpo = new String(fluxo.readAllBytes(), StandardCharsets.UTF_8).trim();
+            return corpo.isEmpty() ? "(sem corpo)" : corpo;
+        } catch (IOException ex) {
+            return "(não foi possível ler o corpo: " + ex.getMessage() + ")";
         }
     }
 }
