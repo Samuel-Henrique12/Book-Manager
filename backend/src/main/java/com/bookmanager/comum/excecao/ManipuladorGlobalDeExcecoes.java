@@ -1,10 +1,12 @@
 package com.bookmanager.comum.excecao;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -65,12 +67,21 @@ public class ManipuladorGlobalDeExcecoes {
                 "Você não tem permissão para executar esta operação");
     }
 
+    // Exception Handler de Corpo Ilegível — JSON Malformado ou Fora do UTF-8 (400)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail tratarCorpoIlegivel(HttpMessageNotReadableException ex) {
+        log.warn("Corpo da requisição ilegível: {}", ex.getMostSpecificCause().getMessage());
+        return montar(HttpStatus.BAD_REQUEST, "Requisição inválida",
+                "O corpo da requisição não pôde ser lido. Envie um JSON válido em UTF-8.");
+    }
+
     // Exception Handler de Validação de Campos (400)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail tratarValidacao(MethodArgumentNotValidException ex) {
+        Object alvo = ex.getBindingResult().getTarget();
         Map<String, String> campos = new LinkedHashMap<>();
         for (FieldError erro : ex.getBindingResult().getFieldErrors()) {
-            campos.putIfAbsent(erro.getField(), erro.getDefaultMessage());
+            campos.putIfAbsent(nomeNoContrato(alvo, erro.getField()), erro.getDefaultMessage());
         }
         ProblemDetail problema = montar(HttpStatus.BAD_REQUEST, "Falha de validação",
                 "Um ou mais campos são inválidos");
@@ -84,6 +95,20 @@ public class ManipuladorGlobalDeExcecoes {
         log.error("Erro não tratado", ex);
         return montar(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno",
                 "Ocorreu um erro inesperado ao processar a requisição");
+    }
+
+    // O Erro Aponta o Campo como o Cliente o Enviou, Nao o Nome Interno em PT-BR
+    private String nomeNoContrato(Object alvo, String campo) {
+        if (alvo == null) {
+            return campo;
+        }
+        try {
+            JsonProperty anotacao = alvo.getClass().getDeclaredField(campo)
+                    .getAnnotation(JsonProperty.class);
+            return (anotacao == null || anotacao.value().isBlank()) ? campo : anotacao.value();
+        } catch (NoSuchFieldException | SecurityException ex) {
+            return campo;
+        }
     }
 
     // Monta ProblemDetail com Status, Título e Detalhe

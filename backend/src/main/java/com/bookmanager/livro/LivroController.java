@@ -31,10 +31,11 @@ public class LivroController {
     // Endpoint para Listar Livros com Filtro por Título e Paginação
     @GetMapping
     public ResponseEntity<RespostaPaginadaDTO<LivroResumoDTO>> listar(
-            @RequestParam(required = false) String titulo,
-            @RequestParam(required = false) String categoria,
-            @PageableDefault(size = 10, sort = "titulo") Pageable paginacao) {
-        return ResponseEntity.ok(livroService.listar(titulo, categoria, paginacao));
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String category,
+            @PageableDefault(size = 10, sort = "title") Pageable paginacao) {
+        return ResponseEntity.ok(
+                livroService.listar(title, category, OrdenacaoLivro.traduzir(paginacao)));
     }
 
     // Endpoint para Criar Novo Livro

@@ -17,16 +17,16 @@ import CampoFormulario, { CampoTexto } from "@/components/CampoFormulario";
 
 // Validação do Formulário
 const schema = z.object({
-  titulo: z.string().trim().min(1, "Informe o título").max(250, "Máximo de 250 caracteres"),
-  autor: z.string().trim().min(1, "Informe o autor").max(200, "Máximo de 200 caracteres"),
-  ano: z
+  title: z.string().trim().min(1, "Informe o título").max(250, "Máximo de 250 caracteres"),
+  author: z.string().trim().min(1, "Informe o autor").max(200, "Máximo de 200 caracteres"),
+  year: z
     .string()
     .trim()
     .refine((v) => v === "" || (/^\d{1,4}$/.test(v) && +v >= 1 && +v <= 2100), {
       message: "Informe um ano entre 1 e 2100",
     }),
-  descricao: z.string().max(5000, "Máximo de 5000 caracteres"),
-  urlCapa: z
+  description: z.string().max(5000, "Máximo de 5000 caracteres"),
+  coverUrl: z
     .string()
     .trim()
     .max(500, "Máximo de 500 caracteres")
@@ -34,7 +34,7 @@ const schema = z.object({
       message: "Informe uma URL começando com http:// ou https://",
     }),
   isbn: z.string().trim().max(20, "Máximo de 20 caracteres"),
-  totalPaginas: z
+  pageCount: z
     .string()
     .trim()
     .refine((v) => v === "" || (/^\d{1,5}$/.test(v) && +v >= 1), {
@@ -45,13 +45,13 @@ const schema = z.object({
 export type ValoresLivro = z.infer<typeof schema>;
 
 const VAZIO: ValoresLivro = {
-  titulo: "",
-  autor: "",
-  ano: "",
-  descricao: "",
-  urlCapa: "",
+  title: "",
+  author: "",
+  year: "",
+  description: "",
+  coverUrl: "",
   isbn: "",
-  totalPaginas: "",
+  pageCount: "",
 };
 
 interface Props {
@@ -68,7 +68,7 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
   const alerta = useAlerta();
   const aplicarErro = useAplicarErro();
   const [detalhesAbertos, setDetalhesAbertos] = useState(
-    Boolean(valoresIniciais?.urlCapa || valoresIniciais?.isbn || valoresIniciais?.totalPaginas),
+    Boolean(valoresIniciais?.coverUrl || valoresIniciais?.isbn || valoresIniciais?.pageCount),
   );
 
   const {
@@ -98,13 +98,13 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
   // Enviar Campos pro Put e Mapper do BackEnd Sobrescrever com Null as Omissões
   function aoEnviar(v: ValoresLivro) {
     salvar.mutate({
-      titulo: v.titulo.trim(),
-      autor: v.autor.trim(),
-      ano: v.ano ? Number(v.ano) : null,
-      descricao: v.descricao.trim() || null,
-      urlCapa: v.urlCapa.trim() || null,
+      title: v.title.trim(),
+      author: v.author.trim(),
+      year: v.year ? Number(v.year) : null,
+      description: v.description.trim() || null,
+      coverUrl: v.coverUrl.trim() || null,
       isbn: v.isbn.trim() || null,
-      totalPaginas: v.totalPaginas ? Number(v.totalPaginas) : null,
+      pageCount: v.pageCount ? Number(v.pageCount) : null,
     });
   }
 
@@ -140,8 +140,8 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
               className="mb-5"
               rotulo="Título"
               placeholder="Ex.: Dom Casmurro"
-              erro={errors.titulo?.message}
-              {...register("titulo")}
+              erro={errors.title?.message}
+              {...register("title")}
             />
 
             <CampoFormulario
@@ -150,8 +150,8 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
               className="mb-5"
               rotulo="Autor"
               placeholder="Ex.: Machado de Assis"
-              erro={errors.autor?.message}
-              {...register("autor")}
+              erro={errors.author?.message}
+              {...register("author")}
             />
 
             <CampoFormulario
@@ -162,8 +162,8 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
               inputMode="numeric"
               maxLength={4}
               placeholder="Ex.: 1899"
-              erro={errors.ano?.message}
-              {...register("ano")}
+              erro={errors.year?.message}
+              {...register("year")}
             />
 
             <CampoTexto
@@ -172,8 +172,8 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
               className="mb-6"
               rotulo="Descrição"
               placeholder="Uma breve sinopse ou nota sobre o livro..."
-              erro={errors.descricao?.message}
-              {...register("descricao")}
+              erro={errors.description?.message}
+              {...register("description")}
             />
 
             {/* Detalhes Adicionais */}
@@ -199,8 +199,8 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
                     className="mb-4"
                     rotulo="Capa"
                     placeholder="https://exemplo.com/capa.jpg"
-                    erro={errors.urlCapa?.message}
-                    {...register("urlCapa")}
+                    erro={errors.coverUrl?.message}
+                    {...register("coverUrl")}
                   />
 
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -219,8 +219,8 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
                       inputMode="numeric"
                       maxLength={5}
                       placeholder="Ex.: 256"
-                      erro={errors.totalPaginas?.message}
-                      {...register("totalPaginas")}
+                      erro={errors.pageCount?.message}
+                      {...register("pageCount")}
                     />
                   </div>
                 </div>
@@ -254,12 +254,12 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
               PRÉ-VISUALIZAÇÃO
             </div>
             <LivroPreview
-              titulo={valores.titulo}
-              autor={valores.autor}
-              ano={valores.ano}
-              descricao={valores.descricao}
-              urlCapa={valores.urlCapa}
-              seed={seed ?? id ?? valores.titulo}
+              titulo={valores.title}
+              autor={valores.author}
+              ano={valores.year}
+              descricao={valores.description}
+              urlCapa={valores.coverUrl}
+              seed={seed ?? id ?? valores.title}
             />
             <p className="mt-3.5 px-0.5 text-[12.5px] leading-relaxed text-suave-2">
               É assim que o livro aparecerá na sua estante.

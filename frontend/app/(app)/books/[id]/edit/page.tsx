@@ -34,13 +34,13 @@ export default function EditarLivro() {
       id={id}
       seed={data.id}
       valoresIniciais={{
-        titulo: data.titulo,
-        autor: data.autor,
-        ano: data.ano != null ? String(data.ano) : "",
-        descricao: data.descricao ?? "",
-        urlCapa: data.urlCapa ?? "",
+        title: data.title,
+        author: data.author,
+        year: data.year != null ? String(data.year) : "",
+        description: data.description ?? "",
+        coverUrl: data.coverUrl ?? "",
         isbn: data.isbn ?? "",
-        totalPaginas: data.totalPaginas != null ? String(data.totalPaginas) : "",
+        pageCount: data.pageCount != null ? String(data.pageCount) : "",
       }}
     />
   );

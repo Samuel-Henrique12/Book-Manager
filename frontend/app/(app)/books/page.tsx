@@ -41,7 +41,7 @@ function Acervo() {
   const [buscaAtiva, setBuscaAtiva] = useState("");
   const [pagina, setPagina] = useState(0);
   const [layout, setLayout] = useState<"grade" | "lista">("grade");
-  const [sortCampo, setSortCampo] = useState("titulo");
+  const [sortCampo, setSortCampo] = useState("title");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [categoria, setCategoria] = useState<string | null>(categoriaInicial);
   const [alvoExclusao, setAlvoExclusao] = useState<LivroResumo | null>(null);
@@ -60,8 +60,8 @@ function Acervo() {
     queryKey: ["livros", buscaAtiva, categoria, pagina, sort],
     queryFn: () =>
       listarLivros({
-        titulo: buscaAtiva || undefined,
-        categoria: categoria ?? undefined,
+        title: buscaAtiva || undefined,
+        category: categoria ?? undefined,
         page: pagina,
         size: TAMANHO,
         sort,
@@ -88,9 +88,9 @@ function Acervo() {
     },
   });
 
-  const livros = data?.conteudo ?? [];
-  const total = data?.totalElementos ?? 0;
-  const totalPaginas = data?.totalPaginas ?? 1;
+  const livros = data?.content ?? [];
+  const total = data?.totalElements ?? 0;
+  const totalPaginas = data?.totalPages ?? 1;
   const filtrando = Boolean(buscaAtiva) || categoria !== null;
 
   function ordenarPor(campo: string) {
@@ -172,7 +172,7 @@ function Acervo() {
                   setPagina(0);
                 }}
               >
-                {item.nome}
+                {item.name}
               </Chip>
             ))}
           </div>
@@ -200,14 +200,14 @@ function Acervo() {
           aria-label="Ordenar"
           className="h-[56px] cursor-pointer rounded-xl border border-borda bg-superficie px-3.5 text-[14px] outline-none transition hover:border-borda-forte focus:border-terracota"
         >
-          <option value="titulo,asc">Título (A–Z)</option>
-          <option value="titulo,desc">Título (Z–A)</option>
-          <option value="autor,asc">Autor (A–Z)</option>
-          <option value="autor,desc">Autor (Z–A)</option>
-          <option value="mediaAvaliacao,desc">Melhor avaliados</option>
-          <option value="ano,desc">Mais recentes</option>
-          <option value="ano,asc">Mais antigos</option>
-          <option value="criadoEm,desc">Adicionados por último</option>
+          <option value="title,asc">Título (A–Z)</option>
+          <option value="title,desc">Título (Z–A)</option>
+          <option value="author,asc">Autor (A–Z)</option>
+          <option value="author,desc">Autor (Z–A)</option>
+          <option value="averageRating,desc">Melhor avaliados</option>
+          <option value="year,desc">Mais recentes</option>
+          <option value="year,asc">Mais antigos</option>
+          <option value="createdAt,desc">Adicionados por último</option>
         </select>
       </div>
 
@@ -288,7 +288,7 @@ function Acervo() {
         descricao={
           <>
             Tem certeza que deseja remover{" "}
-            <strong className="text-tinta">{alvoExclusao?.titulo}</strong>? Esta ação não pode ser
+            <strong className="text-tinta">{alvoExclusao?.title}</strong>? Esta ação não pode ser
             desfeita.
           </>
         }

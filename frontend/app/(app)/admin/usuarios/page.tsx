@@ -86,9 +86,9 @@ export default function PaginaUsuarios() {
     },
   });
 
-  const usuarios = data?.conteudo ?? [];
-  const total = data?.totalElementos ?? 0;
-  const totalPaginas = data?.totalPaginas ?? 1;
+  const usuarios = data?.content ?? [];
+  const total = data?.totalElements ?? 0;
+  const totalPaginas = data?.totalPages ?? 1;
 
   function ordenarPor(campo: string) {
     if (sortCampo === campo) {

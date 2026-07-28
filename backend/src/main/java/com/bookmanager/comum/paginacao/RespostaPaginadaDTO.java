@@ -1,16 +1,17 @@
 package com.bookmanager.comum.paginacao;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import org.springframework.data.domain.Page;
 
-// DTO pra Resposta Paginada
+// DTO pra Resposta Paginada — Nomes Espelham o Page do Spring Data
 public record RespostaPaginadaDTO<T>(
-        List<T> conteudo,
-        int pagina,
-        int tamanho,
-        long totalElementos,
-        int totalPaginas,
-        boolean ultima
+        @JsonProperty("content") List<T> conteudo,
+        @JsonProperty("page") int pagina,
+        @JsonProperty("size") int tamanho,
+        @JsonProperty("totalElements") long totalElementos,
+        @JsonProperty("totalPages") int totalPaginas,
+        @JsonProperty("last") boolean ultima
 ) {
 
     // Static Constructor pra Criar DTO a Partir de uma Página do Spring Data

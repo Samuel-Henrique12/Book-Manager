@@ -3,8 +3,8 @@ import type { Livro, LivroInput, LivroResumo, RespostaPaginada } from "./tipos";
 
 // Params da Listagem de Livros
 export interface ParamsListagem {
-  titulo?: string;
-  categoria?: string;
+  title?: string;
+  category?: string;
   page?: number;
   size?: number;
   sort?: string;
@@ -13,8 +13,8 @@ export interface ParamsListagem {
 // Funções de API para Livros
 export function listarLivros(params: ParamsListagem) {
   const query = new URLSearchParams();
-  if (params.titulo) query.set("titulo", params.titulo);
-  if (params.categoria) query.set("categoria", params.categoria);
+  if (params.title) query.set("title", params.title);
+  if (params.category) query.set("category", params.category);
   query.set("page", String(params.page ?? 0));
   query.set("size", String(params.size ?? 12));
   if (params.sort) query.set("sort", params.sort);

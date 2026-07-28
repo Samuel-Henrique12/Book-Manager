@@ -1,29 +1,30 @@
 package com.bookmanager.livro.dto;
 
 import com.bookmanager.categoria.dto.CategoriaRespostaDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
 // Detalhe de Livro
 public record LivroRespostaDTO(
-        Long id,
-        String titulo,
-        String subtitulo,
-        String autor,
-        Integer ano,
-        String descricao,
-        String urlCapa,
-        String isbn,
-        Integer totalPaginas,
-        String editora,
-        String dataPublicacao,
-        String idioma,
-        BigDecimal mediaAvaliacao,
-        Integer totalAvaliacoes,
-        String linkPrevia,
-        List<CategoriaRespostaDTO> categorias,
-        Instant criadoEm,
-        Instant atualizadoEm
+        @JsonProperty("id") Long id,
+        @JsonProperty("title") String titulo,
+        @JsonProperty("subtitle") String subtitulo,
+        @JsonProperty("author") String autor,
+        @JsonProperty("year") Integer ano,
+        @JsonProperty("description") String descricao,
+        @JsonProperty("coverUrl") String urlCapa,
+        @JsonProperty("isbn") String isbn,
+        @JsonProperty("pageCount") Integer totalPaginas,
+        @JsonProperty("publisher") String editora,
+        @JsonProperty("publishedDate") String dataPublicacao,
+        @JsonProperty("language") String idioma,
+        @JsonProperty("averageRating") BigDecimal mediaAvaliacao,
+        @JsonProperty("ratingsCount") Integer totalAvaliacoes,
+        @JsonProperty("previewLink") String linkPrevia,
+        @JsonProperty("categories") List<CategoriaRespostaDTO> categorias,
+        @JsonProperty("createdAt") Instant criadoEm,
+        @JsonProperty("updatedAt") Instant atualizadoEm
 ) {
 }

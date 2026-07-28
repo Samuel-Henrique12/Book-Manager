@@ -7,9 +7,9 @@ import EstrelasNota from "@/components/ui/EstrelasNota";
 import BotaoAcao from "@/components/ui/BotaoAcao";
 
 const COLUNAS = [
-  { campo: "titulo", rotulo: "Título" },
-  { campo: "autor", rotulo: "Autor" },
-  { campo: "ano", rotulo: "Ano" },
+  { campo: "title", rotulo: "Título" },
+  { campo: "author", rotulo: "Autor" },
+  { campo: "year", rotulo: "Ano" },
 ] as const;
 
 // Lista Compacta de Livros
@@ -43,7 +43,7 @@ export default function ListaLivros({
                   scope="col"
                   aria-sort={ativo ? (sortDir === "asc" ? "ascending" : "descending") : "none"}
                   className={`px-5 py-3 text-[12px] font-bold uppercase tracking-[0.06em] text-suave ${
-                    coluna.campo === "titulo" ? "" : "hidden sm:table-cell"
+                    coluna.campo === "title" ? "" : "hidden sm:table-cell"
                   }`}
                 >
                   <button
@@ -83,32 +83,32 @@ export default function ListaLivros({
                   <div className="w-[38px] shrink-0">
                     <CapaLivro
                       id={livro.id}
-                      titulo={livro.titulo}
-                      urlCapa={livro.urlCapa}
+                      titulo={livro.title}
+                      urlCapa={livro.coverUrl}
                       arredondamento="rounded-[5px]"
                     />
                   </div>
                   <div className="min-w-0">
                     <span className="block truncate font-serif text-[16px] font-medium">
-                      {livro.titulo}
+                      {livro.title}
                     </span>
                     <span className="truncate text-[12.5px] text-suave-2 sm:hidden">
-                      {livro.autor}
+                      {livro.author}
                     </span>
                   </div>
                 </div>
               </td>
 
               <td className="hidden px-5 py-3 text-[14px] text-tinta-2 sm:table-cell">
-                <span className="line-clamp-1">{livro.autor}</span>
+                <span className="line-clamp-1">{livro.author}</span>
               </td>
 
               <td className="hidden px-5 py-3 text-[14px] tabular-nums text-tinta-2 sm:table-cell">
-                {livro.ano ?? "—"}
+                {livro.year ?? "—"}
               </td>
 
               <td className="hidden w-[180px] px-5 py-3 lg:table-cell">
-                <Avaliacao nota={livro.mediaAvaliacao} total={livro.totalAvaliacoes} />
+                <Avaliacao nota={livro.averageRating} total={livro.ratingsCount} />
               </td>
 
               <td className="px-5 py-3">

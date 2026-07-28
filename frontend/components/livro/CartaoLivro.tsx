@@ -16,20 +16,20 @@ export default function CartaoLivro({
   aoEditar: (id: number) => void;
   aoExcluir: (livro: LivroResumo) => void;
 }) {
-  const categoria = livro.categorias?.[0];
+  const categoria = livro.categories?.[0];
 
   return (
     <article className="group relative">
       <Link
         href={`/books/${livro.id}/edit`}
-        aria-label={`Abrir ${livro.titulo}`}
+        aria-label={`Abrir ${livro.title}`}
         className="block rounded-[10px] transition duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-terracota group-hover:-translate-y-1"
       >
         <CapaLivro
           id={livro.id}
-          titulo={livro.titulo}
-          autor={livro.autor}
-          urlCapa={livro.urlCapa}
+          titulo={livro.title}
+          autor={livro.author}
+          urlCapa={livro.coverUrl}
         />
       </Link>
 
@@ -42,25 +42,25 @@ export default function CartaoLivro({
       <div className="mt-3">
         {categoria && (
           <span className="inline-block rounded-full bg-superficie-2 px-2 py-0.5 text-[11px] font-semibold text-suave">
-            {categoria.nome}
+            {categoria.name}
           </span>
         )}
 
         <h3 className="mt-1.5 line-clamp-2 font-serif text-[16px] font-medium leading-snug text-pretty">
-          {livro.titulo}
+          {livro.title}
         </h3>
-        <p className="mt-0.5 line-clamp-1 text-[13px] text-suave">{livro.autor}</p>
+        <p className="mt-0.5 line-clamp-1 text-[13px] text-suave">{livro.author}</p>
 
         <div className="mt-2 flex min-h-[18px] items-center gap-2">
-          {livro.mediaAvaliacao ? (
+          {livro.averageRating ? (
             <>
-              <EstrelasNota nota={Math.round(livro.mediaAvaliacao)} tamanho={13} />
+              <EstrelasNota nota={Math.round(livro.averageRating)} tamanho={13} />
               <span className="text-[11.5px] text-suave-2">
-                {livro.mediaAvaliacao.toFixed(1)}
+                {livro.averageRating.toFixed(1)}
               </span>
             </>
           ) : (
-            <span className="text-[12px] text-suave-2">{livro.ano ?? "—"}</span>
+            <span className="text-[12px] text-suave-2">{livro.year ?? "—"}</span>
           )}
         </div>
       </div>

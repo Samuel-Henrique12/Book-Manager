@@ -1,50 +1,50 @@
 export interface RespostaPaginada<T> {
-  conteudo: T[];
-  pagina: number;
-  tamanho: number;
-  totalElementos: number;
-  totalPaginas: number;
-  ultima: boolean;
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
 }
 
 export interface Categoria {
   id: number;
-  nome: string;
+  name: string;
   slug: string;
 }
 
 export interface Livro {
   id: number;
-  titulo: string;
-  subtitulo?: string | null;
-  autor: string;
-  ano?: number | null;
-  descricao?: string | null;
-  urlCapa?: string | null;
+  title: string;
+  subtitle?: string | null;
+  author: string;
+  year?: number | null;
+  description?: string | null;
+  coverUrl?: string | null;
   isbn?: string | null;
-  totalPaginas?: number | null;
-  editora?: string | null;
-  dataPublicacao?: string | null;
-  idioma?: string | null;
-  mediaAvaliacao?: number | null;
-  totalAvaliacoes?: number | null;
-  linkPrevia?: string | null;
-  categorias?: Categoria[];
-  criadoEm?: string;
-  atualizadoEm?: string;
+  pageCount?: number | null;
+  publisher?: string | null;
+  publishedDate?: string | null;
+  language?: string | null;
+  averageRating?: number | null;
+  ratingsCount?: number | null;
+  previewLink?: string | null;
+  categories?: Categoria[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type LivroResumo = Pick<
   Livro,
   | "id"
-  | "titulo"
-  | "autor"
-  | "ano"
-  | "descricao"
-  | "urlCapa"
-  | "mediaAvaliacao"
-  | "totalAvaliacoes"
-  | "categorias"
+  | "title"
+  | "author"
+  | "year"
+  | "description"
+  | "coverUrl"
+  | "averageRating"
+  | "ratingsCount"
+  | "categories"
 >;
 
 // Acompanhamento da Importação do Google Books
@@ -61,13 +61,13 @@ export interface ProgressoImportacao {
 
 // Interface para Input de Livro
 export interface LivroInput {
-  titulo: string;
-  autor: string;
-  ano?: number | null;
-  descricao?: string | null;
-  urlCapa?: string | null;
+  title: string;
+  author: string;
+  year?: number | null;
+  description?: string | null;
+  coverUrl?: string | null;
   isbn?: string | null;
-  totalPaginas?: number | null;
+  pageCount?: number | null;
 }
 
 // TODO :

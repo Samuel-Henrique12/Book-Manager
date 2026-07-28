@@ -25,8 +25,8 @@ export default function ContinueLendo({
           <div className="w-[62px] shrink-0">
             <CapaLivro
               id={livro.id}
-              titulo={livro.titulo}
-              urlCapa={livro.urlCapa}
+              titulo={livro.title}
+              urlCapa={livro.coverUrl}
               arredondamento="rounded-lg"
             />
           </div>
@@ -34,9 +34,9 @@ export default function ContinueLendo({
           <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
             <div className="min-w-0">
               <h3 className="line-clamp-2 font-serif text-[16px] font-medium leading-snug text-pretty">
-                {livro.titulo}
+                {livro.title}
               </h3>
-              <p className="mt-0.5 line-clamp-1 text-[13px] text-suave">{livro.autor}</p>
+              <p className="mt-0.5 line-clamp-1 text-[13px] text-suave">{livro.author}</p>
             </div>
             <BarraProgresso
               className="mt-3"

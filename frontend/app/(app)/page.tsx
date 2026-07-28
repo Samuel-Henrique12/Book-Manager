@@ -19,12 +19,12 @@ const VITRINE = 6;
 export default function PaginaInicio() {
   const recentes = useQuery({
     queryKey: ["livros", "recentes"],
-    queryFn: () => listarLivros({ size: VITRINE, sort: "criadoEm,desc" }),
+    queryFn: () => listarLivros({ size: VITRINE, sort: "createdAt,desc" }),
   });
 
   const destaques = useQuery({
     queryKey: ["livros", "destaques"],
-    queryFn: () => listarLivros({ size: VITRINE, sort: "mediaAvaliacao,desc" }),
+    queryFn: () => listarLivros({ size: VITRINE, sort: "averageRating,desc" }),
   });
 
   const { data: categorias = [] } = useQuery({
@@ -33,9 +33,9 @@ export default function PaginaInicio() {
     staleTime: 10 * 60 * 1000,
   });
 
-  const total = recentes.data?.totalElementos ?? 0;
+  const total = recentes.data?.totalElements ?? 0;
   const carregando = recentes.isPending;
-  const listaDestaques = (destaques.data?.conteudo ?? []).filter((livro) => livro.mediaAvaliacao);
+  const listaDestaques = (destaques.data?.content ?? []).filter((livro) => livro.averageRating);
 
   if (recentes.isError) {
     return (
@@ -84,7 +84,7 @@ export default function PaginaInicio() {
         <>
           <section className="mb-11">
             <TituloSecao acao={<AtalhoAcervo />}>Adicionados recentemente</TituloSecao>
-            <Vitrine livros={recentes.data?.conteudo ?? []} />
+            <Vitrine livros={recentes.data?.content ?? []} />
           </section>
 
           {listaDestaques.length > 0 && (
@@ -102,7 +102,7 @@ export default function PaginaInicio() {
               <div className="flex flex-wrap gap-2">
                 {categorias.slice(0, 18).map((categoria) => (
                   <Link key={categoria.slug} href={`/books?categoria=${categoria.slug}`}>
-                    <Chip tom="contorno">{categoria.nome}</Chip>
+                    <Chip tom="contorno">{categoria.name}</Chip>
                   </Link>
                 ))}
               </div>
@@ -133,23 +133,23 @@ function Vitrine({ livros, mostrarNota = false }: { livros: LivroResumo[]; mostr
         <Link
           key={livro.id}
           href={`/books/${livro.id}/edit`}
-          title={`${livro.titulo} — ${livro.autor}`}
+          title={`${livro.title} — ${livro.author}`}
           className="group block"
         >
           <CapaLivro
             id={livro.id}
-            titulo={livro.titulo}
-            urlCapa={livro.urlCapa}
+            titulo={livro.title}
+            urlCapa={livro.coverUrl}
             className="transition duration-300 group-hover:-translate-y-1"
             arredondamento="rounded-lg"
           />
           <span className="mt-2 line-clamp-2 block text-[12.5px] leading-snug text-tinta-2">
-            {livro.titulo}
+            {livro.title}
           </span>
-          {mostrarNota && livro.mediaAvaliacao && (
+          {mostrarNota && livro.averageRating && (
             <span className="mt-1 flex items-center gap-1.5">
-              <EstrelasNota nota={Math.round(livro.mediaAvaliacao)} tamanho={11} />
-              <span className="text-[11px] text-suave-2">{livro.mediaAvaliacao.toFixed(1)}</span>
+              <EstrelasNota nota={Math.round(livro.averageRating)} tamanho={11} />
+              <span className="text-[11px] text-suave-2">{livro.averageRating.toFixed(1)}</span>
             </span>
           )}
         </Link>

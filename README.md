@@ -147,7 +147,11 @@ Autenticação via `Authorization: Bearer <token>`. Documentação interativa em
 
 Erros seguem o padrão **[RFC 9457 `ProblemDetail`](https://www.rfc-editor.org/rfc/rfc9457)**; erros de validação incluem um mapa `campos` com a mensagem por campo.
 
-**Modelo `Livro`:** `titulo` e `autor` (obrigatórios); `ano`, `descricao`, `urlCapa`, `isbn` e `totalPaginas` (opcionais). Livros importados do Google Books trazem ainda `subtitulo`, `editora`, `dataPublicacao`, `idioma`, `mediaAvaliacao`, `totalAvaliacoes`, `linkPrevia` e as `categorias` associadas.
+**Modelo `Book`:** `title` e `author` (obrigatórios); `year`, `description`, `coverUrl`, `isbn` e `pageCount` (opcionais). Livros importados do Google Books trazem ainda `subtitle`, `publisher`, `publishedDate`, `language`, `averageRating`, `ratingsCount`, `previewLink` e as `categories` associadas.
+
+A listagem é paginada no formato do Spring Data (`content`, `page`, `size`, `totalElements`, `totalPages`, `last`) e aceita `sort` pelos campos públicos — por exemplo `?sort=title,asc` ou `?sort=averageRating,desc`.
+
+> O contrato HTTP é em inglês, como define o enunciado; o código Java mantém a nomenclatura PT-BR do projeto, e a ponte entre os dois é feita com `@JsonProperty` nos DTOs.
 
 ---
 
