@@ -1,6 +1,5 @@
 package com.bookmanager.usuario;
 
-import com.bookmanager.autenticacao.seguranca.PoliticaAdmin;
 import com.bookmanager.autenticacao.verificacao.TokenVerificacaoRepository;
 import com.bookmanager.comum.excecao.RecursoNaoEncontradoException;
 import com.bookmanager.comum.excecao.RegraDeNegocioException;
@@ -28,7 +27,6 @@ public class UsuarioService {
     private final TokenVerificacaoRepository tokenRepository;
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder codificadorDeSenha;
-    private final PoliticaAdmin politicaAdmin;
 
     // Buscar Usuario por Email ou Try Exception
     @Transactional(readOnly = true)
@@ -149,6 +147,6 @@ public class UsuarioService {
     }
 
     private ContaRespostaDTO montarConta(Usuario usuario) {
-        return usuarioMapper.paraConta(usuario, politicaAdmin.permitido(usuario.getPerfil()));
+        return usuarioMapper.paraConta(usuario, usuario.getPerfil() == Perfil.ADMIN);
     }
 }

@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/usuarios")
 @RequiredArgsConstructor
-@PreAuthorize("@politicaAdmin.aberto() or hasRole('ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;

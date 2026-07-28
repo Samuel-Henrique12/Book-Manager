@@ -8,7 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.bookmanager.autenticacao.seguranca.PoliticaAdmin;
 import com.bookmanager.autenticacao.verificacao.TokenVerificacaoRepository;
 import com.bookmanager.comum.excecao.RegraDeNegocioException;
 import com.bookmanager.usuario.dto.AlterarPerfilRequestDTO;
@@ -44,9 +43,6 @@ class UsuarioServiceTest {
 
     @Mock
     private PasswordEncoder codificadorDeSenha;
-
-    @Mock
-    private PoliticaAdmin politicaAdmin;
 
     @InjectMocks
     private UsuarioService usuarioService;

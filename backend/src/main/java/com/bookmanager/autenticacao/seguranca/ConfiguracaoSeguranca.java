@@ -30,7 +30,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 @EnableConfigurationProperties({PropriedadesJwt.class, PropriedadesCors.class,
-        PropriedadesEmail.class, PropriedadesVerificacao.class, PropriedadesAdmin.class})
+        PropriedadesEmail.class, PropriedadesVerificacao.class})
 public class ConfiguracaoSeguranca {
 
     // Rotas Publicas (Sem Auth)
