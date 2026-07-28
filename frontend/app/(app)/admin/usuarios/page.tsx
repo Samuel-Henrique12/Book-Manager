@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { Search, Users } from "lucide-react";
 import { ApiError } from "@/lib/api";
+import { useAlerta } from "@/lib/alerta";
 import { CHAVE_CONTA, useConta } from "@/lib/conta";
 import {
   alterarPerfilUsuario,
   listarUsuarios,
   removerUsuario,
 } from "@/lib/usuarios";
+import { ROTULO_PERFIL } from "@/lib/rotulos";
 import type { Perfil, Usuario } from "@/lib/tipos";
 import Painel from "@/components/ui/Painel";
 import Paginacao from "@/components/Paginacao";
@@ -24,6 +25,7 @@ const TAMANHO = 10;
 // Tela de Administração de Usuários
 export default function PaginaUsuarios() {
   const queryClient = useQueryClient();
+  const alerta = useAlerta();
   const { data: conta } = useConta();
 
   const [busca, setBusca] = useState("");
@@ -62,23 +64,25 @@ export default function PaginaUsuarios() {
       alterarPerfilUsuario(id, perfil),
     onMutate: ({ id }) => setIdEmTroca(id),
     onSuccess: (usuario) => {
-      toast.success(`Perfil de ${usuario.nome} atualizado`);
       recarregar();
+      alerta.sucesso("Perfil atualizado", `${usuario.nome} agora é ${ROTULO_PERFIL[usuario.perfil]}.`);
     },
     onError: (erro) =>
-      toast.error(erro instanceof ApiError ? erro.message : "Não foi possível trocar o perfil"),
+      alerta.erro(erro instanceof ApiError ? erro.message : "Não foi possível trocar o perfil"),
     onSettled: () => setIdEmTroca(null),
   });
 
   const exclusao = useMutation({
     mutationFn: (id: number) => removerUsuario(id),
     onSuccess: () => {
-      toast.success("Usuário excluído");
       setAlvoExclusao(null);
       recarregar();
+      alerta.sucesso("Usuário excluído");
     },
-    onError: (erro) =>
-      toast.error(erro instanceof ApiError ? erro.message : "Não foi possível excluir o usuário"),
+    onError: (erro) => {
+      setAlvoExclusao(null);
+      alerta.erro(erro instanceof ApiError ? erro.message : "Não foi possível excluir o usuário");
+    },
   });
 
   const usuarios = data?.conteudo ?? [];

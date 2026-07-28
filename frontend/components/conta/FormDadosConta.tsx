@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { ApiError } from "@/lib/api";
@@ -13,7 +12,8 @@ import { atualizarMinhaConta } from "@/lib/usuarios";
 import { CLASSE_PERFIL, ROTULO_PERFIL } from "@/lib/rotulos";
 import type { Conta } from "@/lib/tipos";
 import CampoFormulario from "@/components/CampoFormulario";
-import { aplicarErro } from "@/lib/erros";
+import { useAlerta } from "@/lib/alerta";
+import { useAplicarErro } from "@/lib/erros";
 
 const schema = z.object({
   nome: z.string().trim().min(1, "Informe seu nome").max(150, "Máximo de 150 caracteres"),
@@ -24,6 +24,8 @@ type Valores = z.infer<typeof schema>;
 // Nome, E-mail e Perfil da Conta
 export default function FormDadosConta({ conta }: { conta: Conta }) {
   const queryClient = useQueryClient();
+  const alerta = useAlerta();
+  const aplicarErro = useAplicarErro();
 
   const {
     register,
@@ -39,7 +41,7 @@ export default function FormDadosConta({ conta }: { conta: Conta }) {
       salvarNome(atualizada.nome);
       queryClient.setQueryData(CHAVE_CONTA, atualizada);
       reset({ nome: atualizada.nome });
-      toast.success("Dados atualizados");
+      alerta.sucesso("Dados atualizados");
     },
     onError: (erro) => aplicarErro(erro, setError, "Não foi possível salvar seus dados"),
   });

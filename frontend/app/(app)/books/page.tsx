@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { LayoutGrid, List, Plus, Search } from "lucide-react";
 import { listarLivros, removerLivro } from "@/lib/livros";
+import { useAlerta } from "@/lib/alerta";
 import { CATEGORIAS, estanteDoLivro } from "@/lib/mock";
 import { ROTULO_STATUS } from "@/lib/rotulos";
 import type { EstanteItem, LivroResumo, StatusLeitura } from "@/lib/tipos";
@@ -37,6 +37,7 @@ const ABAS: { chave: Aba; rotulo: string }[] = [
 export default function PaginaEstante() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const alerta = useAlerta();
 
   const [busca, setBusca] = useState("");
   const [buscaAtiva, setBuscaAtiva] = useState("");
@@ -68,11 +69,14 @@ export default function PaginaEstante() {
   const exclusao = useMutation({
     mutationFn: (id: number) => removerLivro(id),
     onSuccess: () => {
-      toast.success("Livro excluído");
       setAlvoExclusao(null);
       queryClient.invalidateQueries({ queryKey: ["livros"] });
+      alerta.sucesso("Livro excluído");
     },
-    onError: () => toast.error("Não foi possível excluir o livro"),
+    onError: () => {
+      setAlvoExclusao(null);
+      alerta.erro("Não foi possível excluir o livro");
+    },
   });
 
   const livros = useMemo(() => data?.conteudo ?? [], [data]);

@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react";
 import { atualizarLivro, criarLivro } from "@/lib/livros";
-import { ApiError } from "@/lib/api";
+import { useAlerta } from "@/lib/alerta";
+import { useAplicarErro } from "@/lib/erros";
 import type { LivroInput } from "@/lib/tipos";
 import LivroPreview from "@/components/LivroPreview";
 import CampoFormulario, { CampoTexto } from "@/components/CampoFormulario";
@@ -65,6 +65,8 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
   const edicao = id != null;
   const router = useRouter();
   const queryClient = useQueryClient();
+  const alerta = useAlerta();
+  const aplicarErro = useAplicarErro();
   const [detalhesAbertos, setDetalhesAbertos] = useState(
     Boolean(valoresIniciais?.urlCapa || valoresIniciais?.isbn || valoresIniciais?.totalPaginas),
   );
@@ -84,21 +86,13 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
 
   const salvar = useMutation({
     mutationFn: (dto: LivroInput) => (edicao ? atualizarLivro(id, dto) : criarLivro(dto)),
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["livros"] });
-      toast.success(edicao ? "Livro atualizado" : "Livro adicionado");
+      await alerta.sucesso(edicao ? "Livro atualizado" : "Livro adicionado");
       router.push("/books");
       router.refresh();
     },
-    onError: (erro) => {
-      if (erro instanceof ApiError && erro.campos) {
-        Object.entries(erro.campos).forEach(([campo, mensagem]) =>
-          setError(campo as never, { message: mensagem }),
-        );
-        return;
-      }
-      toast.error(erro instanceof ApiError ? erro.message : "Não foi possível salvar o livro");
-    },
+    onError: (erro) => aplicarErro(erro, setError, "Não foi possível salvar o livro"),
   });
 
   // Enviar Campos pro Put e Mapper do BackEnd Sobrescrever com Null as Omissões

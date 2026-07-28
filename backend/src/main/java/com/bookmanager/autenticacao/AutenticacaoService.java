@@ -89,7 +89,8 @@ public class AutenticacaoService {
         }
 
         String token = servicoTokenJwt.gerarToken(usuario.getEmail());
-        return new TokenRespostaDTO(token, TIPO_TOKEN, servicoTokenJwt.obterExpiracaoEmSegundos());
+        return new TokenRespostaDTO(usuario.getNome(), token, TIPO_TOKEN,
+                servicoTokenJwt.obterExpiracaoEmSegundos());
     }
 
     // Ativa a Conta pelo Link Recebido e Ja Abre Sessao

@@ -111,6 +111,7 @@ export interface SessaoResposta {
 
 // Interface para Resposta de Token
 export interface TokenResposta {
+  nome: string;
   token: string;
   tipo: string;
   expiraEmSegundos: number;

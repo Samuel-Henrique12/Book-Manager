@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@/lib/api";
+import { useAlerta } from "@/lib/alerta";
 import { limparSessao } from "@/lib/auth";
 import { excluirMinhaConta } from "@/lib/usuarios";
 import ModalConfirmacao from "@/components/ModalConfirmacao";
@@ -13,20 +13,21 @@ import ModalConfirmacao from "@/components/ModalConfirmacao";
 export default function ZonaDePerigo() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const alerta = useAlerta();
   const [aberto, setAberto] = useState(false);
 
   const excluir = useMutation({
     mutationFn: excluirMinhaConta,
-    onSuccess: () => {
+    onSuccess: async () => {
       limparSessao();
       queryClient.clear();
-      toast.success("Conta excluída");
+      await alerta.sucesso("Conta excluída");
       router.push("/login");
       router.refresh();
     },
     onError: (erro) => {
       setAberto(false);
-      toast.error(erro instanceof ApiError ? erro.message : "Não foi possível excluir a conta");
+      alerta.erro(erro instanceof ApiError ? erro.message : "Não foi possível excluir a conta");
     },
   });
 

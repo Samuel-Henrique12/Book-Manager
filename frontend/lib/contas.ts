@@ -15,7 +15,7 @@ export async function entrar(dados: { email: string; senha: string }, lembrar = 
     method: "POST",
     body: JSON.stringify(dados),
   });
-  salvarSessao(resposta.token, undefined, lembrar);
+  salvarSessao(resposta.token, resposta.nome, lembrar);
   return resposta;
 }
 

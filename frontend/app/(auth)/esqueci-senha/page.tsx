@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
 import { Loader2, Mail, MailCheck } from "lucide-react";
 import { solicitarRedefinicao } from "@/lib/contas";
 import { ApiError } from "@/lib/api";
+import { useAlerta } from "@/lib/alerta";
 import CampoFormulario from "@/components/CampoFormulario";
 import Cabecalho, { CLASSE_BOTAO } from "@/components/login/Cabecalho";
 import { mascararEmail } from "@/components/login/AvisoConfirmacao";
@@ -20,6 +20,7 @@ const schema = z.object({
 type Formulario = z.infer<typeof schema>;
 
 export default function PaginaEsqueciSenha() {
+  const alerta = useAlerta();
   const [enviadoPara, setEnviadoPara] = useState<string | null>(null);
   const {
     register,
@@ -32,7 +33,7 @@ export default function PaginaEsqueciSenha() {
       await solicitarRedefinicao(dados.email);
       setEnviadoPara(dados.email);
     } catch (erro) {
-      toast.error(
+      alerta.erro(
         erro instanceof ApiError ? erro.message : "Não foi possível conectar ao servidor",
       );
     }

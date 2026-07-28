@@ -6,10 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
 import { CircleCheckBig, Loader2, Lock, TriangleAlert } from "lucide-react";
 import { redefinirSenha } from "@/lib/contas";
 import { ApiError } from "@/lib/api";
+import { useAlerta } from "@/lib/alerta";
 import CampoFormulario from "@/components/CampoFormulario";
 import Cabecalho, { CLASSE_BOTAO } from "@/components/login/Cabecalho";
 
@@ -35,6 +35,7 @@ export default function PaginaRedefinirSenha() {
 
 function Redefinicao() {
   const router = useRouter();
+  const alerta = useAlerta();
   const token = useSearchParams().get("token");
   const [concluido, setConcluido] = useState(false);
   const {
@@ -54,7 +55,7 @@ function Redefinicao() {
         setError("senha", { message: erro.campos.senha });
         return;
       }
-      toast.error(
+      alerta.erro(
         erro instanceof ApiError ? erro.message : "Não foi possível conectar ao servidor",
       );
     }

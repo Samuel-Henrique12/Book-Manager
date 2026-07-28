@@ -9,8 +9,7 @@ import { z } from "zod";
 import { Check, Loader2, Lock, Mail, User } from "lucide-react";
 import { entrar, registrar } from "@/lib/contas";
 import { ApiError } from "@/lib/api";
-import { aplicarErro } from "@/lib/erros";
-import { obterNome } from "@/lib/auth";
+import { useAplicarErro } from "@/lib/erros";
 import CampoFormulario from "@/components/CampoFormulario";
 import Cabecalho, { CLASSE_BOTAO } from "@/components/login/Cabecalho";
 import AvisoConfirmacao from "@/components/login/AvisoConfirmacao";
@@ -62,7 +61,7 @@ export default function PaginaLogin() {
         <FormularioLogin
           aoTrocar={() => setModo("registro")}
           aoPendente={(email) => setPendencia({ email, jaCadastrado: true })}
-          aoEntrar={() => setBoasVindas(obterNome())}
+          aoEntrar={(nome) => setBoasVindas(nome)}
         />
       ) : (
         <FormularioRegistro
@@ -91,9 +90,10 @@ function FormularioLogin({
 }: {
   aoTrocar: () => void;
   aoPendente: (email: string) => void;
-  aoEntrar: () => void;
+  aoEntrar: (nome: string) => void;
 }) {
   const [lembrar, setLembrar] = useState(true);
+  const aplicarErro = useAplicarErro();
   const {
     register,
     handleSubmit,
@@ -103,8 +103,8 @@ function FormularioLogin({
 
   async function aoEnviar(dados: LoginForm) {
     try {
-      await entrar(dados, lembrar);
-      aoEntrar();
+      const sessao = await entrar(dados, lembrar);
+      aoEntrar(sessao.nome);
     } catch (erro) {
       // 403 de Conta Criada Mas Ainda Nõa Confirmada
       if (erro instanceof ApiError && erro.status === 403) {
@@ -173,6 +173,7 @@ function FormularioRegistro({
   aoTrocar: () => void;
   aoRegistrar: (email: string) => void;
 }) {
+  const aplicarErro = useAplicarErro();
   const {
     register,
     handleSubmit,

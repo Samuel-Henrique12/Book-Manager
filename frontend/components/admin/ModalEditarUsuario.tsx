@@ -5,11 +5,11 @@ import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { atualizarUsuario } from "@/lib/usuarios";
-import { aplicarErro } from "@/lib/erros";
+import { useAlerta } from "@/lib/alerta";
+import { useAplicarErro } from "@/lib/erros";
 import type { Usuario } from "@/lib/tipos";
 import CampoFormulario from "@/components/CampoFormulario";
 
@@ -27,6 +27,8 @@ interface Props {
 
 // Edição do Nome de um Usuário
 export default function ModalEditarUsuario({ usuario, aoFechar, aoSalvar }: Props) {
+  const alerta = useAlerta();
+  const aplicarErro = useAplicarErro();
   const {
     register,
     handleSubmit,
@@ -61,9 +63,9 @@ export default function ModalEditarUsuario({ usuario, aoFechar, aoSalvar }: Prop
   const salvar = useMutation({
     mutationFn: (valores: Valores) => atualizarUsuario(usuario!.id, valores.nome.trim()),
     onSuccess: () => {
-      toast.success("Usuário atualizado");
       aoSalvar();
       aoFechar();
+      alerta.sucesso("Usuário atualizado");
     },
     onError: (erro) => aplicarErro(erro, setError, "Não foi possível salvar o usuário"),
   });

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { Loader2, MailCheck } from "lucide-react";
 import { reenviarConfirmacao } from "@/lib/contas";
 import { ApiError } from "@/lib/api";
+import { useAlerta } from "@/lib/alerta";
 
 const ESPERA = 60;
 
@@ -28,6 +28,7 @@ export default function AvisoConfirmacao({
   descricao?: string;
   aoVoltar: () => void;
 }) {
+  const alerta = useAlerta();
   const [enviando, setEnviando] = useState(false);
   const [espera, setEspera] = useState(0);
 
@@ -42,10 +43,10 @@ export default function AvisoConfirmacao({
     setEnviando(true);
     try {
       await reenviarConfirmacao(email);
-      toast.success("Link reenviado. Confira sua caixa de entrada.");
       setEspera(ESPERA);
+      alerta.sucesso("Link reenviado", "Confira sua caixa de entrada.");
     } catch (erro) {
-      toast.error(
+      alerta.erro(
         erro instanceof ApiError ? erro.message : "Não foi possível conectar ao servidor",
       );
     } finally {

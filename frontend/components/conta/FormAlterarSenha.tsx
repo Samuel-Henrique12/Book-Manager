@@ -3,11 +3,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { alterarSenha } from "@/lib/usuarios";
-import { aplicarErro } from "@/lib/erros";
+import { useAlerta } from "@/lib/alerta";
+import { useAplicarErro } from "@/lib/erros";
 import CampoFormulario from "@/components/CampoFormulario";
 
 const schema = z
@@ -30,6 +30,8 @@ const VAZIO: Valores = { senhaAtual: "", novaSenha: "", confirmacao: "" };
 
 // Troca de Senha Exigindo a Senha Atual
 export default function FormAlterarSenha() {
+  const alerta = useAlerta();
+  const aplicarErro = useAplicarErro();
   const {
     register,
     handleSubmit,
@@ -43,7 +45,7 @@ export default function FormAlterarSenha() {
       alterarSenha({ senhaAtual: valores.senhaAtual, novaSenha: valores.novaSenha }),
     onSuccess: () => {
       reset(VAZIO);
-      toast.success("Senha alterada");
+      alerta.sucesso("Senha alterada");
     },
     onError: (erro) => aplicarErro(erro, setError, "Não foi possível alterar a senha"),
   });

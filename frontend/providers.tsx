@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
-import { Toaster } from "sonner";
+import { ProvedorAlerta } from "@/lib/alerta";
 
 // Component Providers
 export default function Providers({ children }: { children: ReactNode }) {
@@ -15,20 +15,10 @@ export default function Providers({ children }: { children: ReactNode }) {
       }),
   );
 
-  // Retorna o QueryClientProvider com Toaster
+  // Retorna o QueryClientProvider com os Avisos em Modal
   return (
     <QueryClientProvider client={client}>
-      {children}
-      <Toaster
-        position="bottom-center"
-        toastOptions={{
-          style: {
-            background: "var(--color-painel)",
-            color: "var(--color-painel-texto)",
-            border: "none",
-          },
-        }}
-      />
+      <ProvedorAlerta>{children}</ProvedorAlerta>
     </QueryClientProvider>
   );
 }
