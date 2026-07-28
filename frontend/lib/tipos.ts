@@ -7,23 +7,57 @@ export interface RespostaPaginada<T> {
   ultima: boolean;
 }
 
+export interface Categoria {
+  id: number;
+  nome: string;
+  slug: string;
+}
+
 export interface Livro {
   id: number;
   titulo: string;
+  subtitulo?: string | null;
   autor: string;
   ano?: number | null;
   descricao?: string | null;
   urlCapa?: string | null;
   isbn?: string | null;
   totalPaginas?: number | null;
+  editora?: string | null;
+  dataPublicacao?: string | null;
+  idioma?: string | null;
+  mediaAvaliacao?: number | null;
+  totalAvaliacoes?: number | null;
+  linkPrevia?: string | null;
+  categorias?: Categoria[];
   criadoEm?: string;
   atualizadoEm?: string;
 }
 
 export type LivroResumo = Pick<
   Livro,
-  "id" | "titulo" | "autor" | "ano" | "descricao" | "urlCapa"
+  | "id"
+  | "titulo"
+  | "autor"
+  | "ano"
+  | "descricao"
+  | "urlCapa"
+  | "mediaAvaliacao"
+  | "totalAvaliacoes"
+  | "categorias"
 >;
+
+// Acompanhamento da Importação do Google Books
+export interface ProgressoImportacao {
+  emAndamento: boolean;
+  importados: number;
+  ignorados: number;
+  falhas: number;
+  temaAtual?: string | null;
+  temasConcluidos: number;
+  totalTemas: number;
+  mensagem?: string | null;
+}
 
 // Interface para Input de Livro
 export interface LivroInput {
@@ -37,15 +71,10 @@ export interface LivroInput {
 }
 
 // TODO :
-// Contratos das Fases 2-5 do Backend
-// Ainda não existem na API — ver .planejamento/README.md
+// Contratos das Fases 3-5 do Backend (estante, avaliação e progresso)
+// Ainda não existem na API — os componentes que os consomem estão desativados
 
 export type StatusLeitura = "QUERO_LER" | "LENDO" | "LIDO" | "ABANDONADO";
-
-export interface Categoria {
-  slug: string;
-  nome: string;
-}
 
 export interface EstanteItem {
   status: StatusLeitura;

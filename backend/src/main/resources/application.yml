@@ -73,3 +73,13 @@ app:
   verificacao:
     validade-confirmacao: PT24H
     validade-redefinicao: PT1H
+  integracao:
+    google-books:
+      # Chave Opcional (Sem Ela a API Responde com Cota Menor por IP)
+      chave-api: ${GOOGLE_BOOKS_API_KEY:}
+      url-base: ${GOOGLE_BOOKS_URL:https://www.googleapis.com/books/v1/volumes}
+      # Restrção de Idioma dos Volumes Importados (Vazio = Sem Restrição)
+      idioma: ${GOOGLE_BOOKS_IDIOMA:pt}
+      max-por-tema: ${GOOGLE_BOOKS_MAX_POR_TEMA:200}
+      # Lista Separada por Vírgula; Vazio Usa os Temas Padrão de PropriedadesGoogleBooks
+      temas: ${GOOGLE_BOOKS_TEMAS:}

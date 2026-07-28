@@ -32,8 +32,9 @@ public class LivroController {
     @GetMapping
     public ResponseEntity<RespostaPaginadaDTO<LivroResumoDTO>> listar(
             @RequestParam(required = false) String titulo,
+            @RequestParam(required = false) String categoria,
             @PageableDefault(size = 10, sort = "titulo") Pageable paginacao) {
-        return ResponseEntity.ok(livroService.listar(titulo, paginacao));
+        return ResponseEntity.ok(livroService.listar(titulo, categoria, paginacao));
     }
 
     // Endpoint para Criar Novo Livro

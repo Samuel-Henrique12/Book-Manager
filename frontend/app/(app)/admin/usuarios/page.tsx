@@ -19,6 +19,7 @@ import ModalConfirmacao from "@/components/ModalConfirmacao";
 import Skeletons from "@/components/Skeletons";
 import TabelaUsuarios from "@/components/admin/TabelaUsuarios";
 import ModalEditarUsuario from "@/components/admin/ModalEditarUsuario";
+import PainelImportacao from "@/components/admin/PainelImportacao";
 
 const TAMANHO = 10;
 
@@ -101,10 +102,12 @@ export default function PaginaUsuarios() {
 
   return (
     <>
-      <h1 className="mb-1 font-titulo text-[30px] font-bold tracking-[-0.03em]">Usuários</h1>
+      <h1 className="mb-1 font-titulo text-[30px] font-bold tracking-[-0.03em]">Administração</h1>
       <p className="mb-7 text-[15px] text-suave">
-        Gerencie as contas da plataforma, seus perfis de acesso e exclusões.
+        Gerencie as contas da plataforma e o acervo compartilhado.
       </p>
+
+      <PainelImportacao />
 
       <div className="relative mb-6 max-w-[420px]">
         <Search

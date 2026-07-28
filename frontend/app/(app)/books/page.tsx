@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LayoutGrid, List, Plus, Search } from "lucide-react";
 import { listarLivros, removerLivro } from "@/lib/livros";
+import { listarCategorias } from "@/lib/categorias";
 import { useAlerta } from "@/lib/alerta";
-import { CATEGORIAS, estanteDoLivro } from "@/lib/mock";
-import { ROTULO_STATUS } from "@/lib/rotulos";
-import type { EstanteItem, LivroResumo, StatusLeitura } from "@/lib/tipos";
+import type { LivroResumo } from "@/lib/tipos";
 import CampoFormulario from "@/components/CampoFormulario";
 import CartaoLivro from "@/components/livro/CartaoLivro";
 import ListaLivros from "@/components/livro/ListaLivros";
@@ -22,22 +21,21 @@ import { SimboloLivro } from "@/components/Logotipo";
 
 const TAMANHO = 12;
 
-type Aba = "TODOS" | StatusLeitura | "FAVORITOS";
-
-const ABAS: { chave: Aba; rotulo: string }[] = [
-  { chave: "TODOS", rotulo:  "Todos" },
-  { chave: "LENDO", rotulo: ROTULO_STATUS.LENDO },
-  { chave: "QUERO_LER", rotulo: ROTULO_STATUS.QUERO_LER },
-  { chave: "LIDO", rotulo: ROTULO_STATUS.LIDO },
-  { chave: "ABANDONADO", rotulo: ROTULO_STATUS.ABANDONADO },
-  { chave: "FAVORITOS", rotulo: "Favoritos" },
-];
-
-// Página da Estante
+// useSearchParams Exige Fronteira de Suspense no Next
 export default function PaginaEstante() {
+  return (
+    <Suspense fallback={<Skeletons variante="grade" />}>
+      <Acervo />
+    </Suspense>
+  );
+}
+
+// Página do Acervo
+function Acervo() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const alerta = useAlerta();
+  const categoriaInicial = useSearchParams().get("categoria");
 
   const [busca, setBusca] = useState("");
   const [buscaAtiva, setBuscaAtiva] = useState("");
@@ -45,8 +43,7 @@ export default function PaginaEstante() {
   const [layout, setLayout] = useState<"grade" | "lista">("grade");
   const [sortCampo, setSortCampo] = useState("titulo");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
-  const [aba, setAba] = useState<Aba>("TODOS");
-  const [categoria, setCategoria] = useState<string | null>(null);
+  const [categoria, setCategoria] = useState<string | null>(categoriaInicial);
   const [alvoExclusao, setAlvoExclusao] = useState<LivroResumo | null>(null);
 
   // Debounce da Busca
@@ -60,10 +57,22 @@ export default function PaginaEstante() {
 
   const sort = `${sortCampo},${sortDir}`;
   const { data, isPending, isError } = useQuery({
-    queryKey: ["livros", buscaAtiva, pagina, sort],
+    queryKey: ["livros", buscaAtiva, categoria, pagina, sort],
     queryFn: () =>
-      listarLivros({ titulo: buscaAtiva || undefined, page: pagina, size: TAMANHO, sort }),
+      listarLivros({
+        titulo: buscaAtiva || undefined,
+        categoria: categoria ?? undefined,
+        page: pagina,
+        size: TAMANHO,
+        sort,
+      }),
     placeholderData: keepPreviousData,
+  });
+
+  const { data: categorias = [] } = useQuery({
+    queryKey: ["categorias"],
+    queryFn: listarCategorias,
+    staleTime: 10 * 60 * 1000,
   });
 
   const exclusao = useMutation({
@@ -79,40 +88,14 @@ export default function PaginaEstante() {
     },
   });
 
-  const livros = useMemo(() => data?.conteudo ?? [], [data]);
+  const livros = data?.conteudo ?? [];
   const total = data?.totalElementos ?? 0;
   const totalPaginas = data?.totalPaginas ?? 1;
-
-  // TODO: Estante Ainda Vem de lib/mock.ts
-  const estantes = useMemo(() => {
-    const mapa = new Map<number, EstanteItem>();
-    livros.forEach((livro) => mapa.set(livro.id, estanteDoLivro(livro)));
-    return mapa;
-  }, [livros]);
-
-  // Abas e Categorias Filtram a Página Atual em Memória
-  // TODO: server-side de Filtros (GET /estante?status=).
-  const visiveis = useMemo(() => {
-    return livros.filter((livro) => {
-      const estante = estantes.get(livro.id);
-      if (!estante) return false;
-      if (aba === "FAVORITOS" && !estante.favorito) return false;
-      if (aba !== "TODOS" && aba !== "FAVORITOS" && estante.status !== aba) return false;
-      if (categoria && !estante.categorias.includes(categoria)) return false;
-      return true;
-    });
-  }, [livros, estantes, aba, categoria]);
-
-  const contarAba = (chave: Aba) => {
-    if (chave === "TODOS") return livros.length;
-    if (chave === "FAVORITOS")
-      return livros.filter((l) => estantes.get(l.id)?.favorito).length;
-    return livros.filter((l) => estantes.get(l.id)?.status === chave).length;
-  };
+  const filtrando = Boolean(buscaAtiva) || categoria !== null;
 
   function ordenarPor(campo: string) {
     if (sortCampo === campo) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+      setSortDir((direcao) => (direcao === "asc" ? "desc" : "asc"));
     } else {
       setSortCampo(campo);
       setSortDir("asc");
@@ -120,18 +103,22 @@ export default function PaginaEstante() {
     setPagina(0);
   }
 
-  const filtrando = aba !== "TODOS" || categoria !== null;
+  function limparFiltros() {
+    setBusca("");
+    setCategoria(null);
+    setPagina(0);
+  }
 
   return (
     <>
       <header className="mb-7 flex flex-wrap items-end justify-between gap-5">
         <div>
           <h1 className="font-titulo text-[30px] font-bold leading-tight tracking-[-0.035em] sm:text-[36px]">
-            Minha estante
+            Acervo
           </h1>
           <p className="mt-1 text-[15px] text-suave">
-            {total} {total === 1 ? "livro" : "livros"}
-            {filtrando && ` · ${visiveis.length} nesta página`}
+            {total.toLocaleString("pt-BR")} {total === 1 ? "livro" : "livros"}
+            {filtrando && " encontrados"}
           </p>
         </div>
 
@@ -161,40 +148,36 @@ export default function PaginaEstante() {
         </div>
       </header>
 
-      {/* Abas de Status */}
-      <div className="-mx-5 mb-3 overflow-x-auto px-5 sm:mx-0 sm:px-0">
-        <div className="flex gap-2 pb-1">
-          {ABAS.map(({ chave, rotulo }) => (
+      {/* Categorias Reais do Acervo */}
+      {categorias.length > 0 && (
+        <div className="-mx-5 mb-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
+          <div className="flex gap-2 pb-1">
             <Chip
-              key={chave}
-              ativo={aba === chave}
-              contagem={contarAba(chave)}
-              onClick={() => setAba(chave)}
-            >
-              {rotulo}
-            </Chip>
-          ))}
-        </div>
-      </div>
-
-      {/* Categorias */}
-      <div className="-mx-5 mb-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
-        <div className="flex gap-2 pb-1">
-          <Chip tom="contorno" ativo={categoria === null} onClick={() => setCategoria(null)}>
-            Todas as categorias
-          </Chip>
-          {CATEGORIAS.map((c) => (
-            <Chip
-              key={c.slug}
               tom="contorno"
-              ativo={categoria === c.slug}
-              onClick={() => setCategoria(categoria === c.slug ? null : c.slug)}
+              ativo={categoria === null}
+              onClick={() => {
+                setCategoria(null);
+                setPagina(0);
+              }}
             >
-              {c.nome}
+              Todas as categorias
             </Chip>
-          ))}
+            {categorias.map((item) => (
+              <Chip
+                key={item.slug}
+                tom="contorno"
+                ativo={categoria === item.slug}
+                onClick={() => {
+                  setCategoria(categoria === item.slug ? null : item.slug);
+                  setPagina(0);
+                }}
+              >
+                {item.nome}
+              </Chip>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Busca e Ordenação */}
       <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -221,6 +204,7 @@ export default function PaginaEstante() {
           <option value="titulo,desc">Título (Z–A)</option>
           <option value="autor,asc">Autor (A–Z)</option>
           <option value="autor,desc">Autor (Z–A)</option>
+          <option value="mediaAvaliacao,desc">Melhor avaliados</option>
           <option value="ano,desc">Mais recentes</option>
           <option value="ano,asc">Mais antigos</option>
           <option value="criadoEm,desc">Adicionados por último</option>
@@ -234,12 +218,12 @@ export default function PaginaEstante() {
           titulo="Erro ao carregar"
           descricao="Não foi possível conectar à API. Verifique se o servidor está no ar."
         />
-      ) : total === 0 && !buscaAtiva ? (
+      ) : total === 0 && !filtrando ? (
         <Painel
           tracejado
           icone={<SimboloLivro tamanho={32} />}
-          titulo="Sua estante está vazia"
-          descricao="Comece adicionando o primeiro livro da sua coleção."
+          titulo="O acervo está vazio"
+          descricao="Cadastre um livro ou peça a um administrador para importar o catálogo do Google Books."
           acao={
             <Link
               href="/books/new"
@@ -250,23 +234,15 @@ export default function PaginaEstante() {
             </Link>
           }
         />
-      ) : visiveis.length === 0 ? (
+      ) : livros.length === 0 ? (
         <Painel
           compacto
           titulo="Nenhum livro encontrado"
-          descricao={
-            filtrando
-              ? "Nenhum livro desta página combina com os filtros selecionados."
-              : "Tente ajustar a busca."
-          }
+          descricao="Tente outro termo de busca ou remova o filtro de categoria."
           acao={
             <button
               type="button"
-              onClick={() => {
-                setBusca("");
-                setAba("TODOS");
-                setCategoria(null);
-              }}
+              onClick={limparFiltros}
               className="rounded-xl border border-borda-forte px-4 py-2.5 text-[14px] font-semibold transition hover:bg-creme"
             >
               Limpar filtros
@@ -277,11 +253,10 @@ export default function PaginaEstante() {
         <>
           {layout === "grade" ? (
             <div className="grid grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-x-5 gap-y-7">
-              {visiveis.map((livro) => (
+              {livros.map((livro) => (
                 <CartaoLivro
                   key={livro.id}
                   livro={livro}
-                  estante={estantes.get(livro.id) as EstanteItem}
                   aoEditar={(id) => router.push(`/books/${id}/edit`)}
                   aoExcluir={setAlvoExclusao}
                 />
@@ -289,8 +264,7 @@ export default function PaginaEstante() {
             </div>
           ) : (
             <ListaLivros
-              livros={visiveis}
-              estantes={estantes}
+              livros={livros}
               sortCampo={sortCampo}
               sortDir={sortDir}
               aoOrdenar={ordenarPor}

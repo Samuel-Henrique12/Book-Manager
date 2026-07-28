@@ -52,6 +52,12 @@ public class ManipuladorGlobalDeExcecoes {
         return montar(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de e-mail indisponível", ex.getMessage());
     }
 
+    // Exception Handler de Integração Externa Indisponível (503)
+    @ExceptionHandler(IntegracaoIndisponivelException.class)
+    public ProblemDetail tratarIntegracaoIndisponivel(IntegracaoIndisponivelException ex) {
+        return montar(HttpStatus.SERVICE_UNAVAILABLE, "Serviço externo indisponível", ex.getMessage());
+    }
+
     // Exception Handler de Acesso Negado (403)
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail tratarAcessoNegado(AccessDeniedException ex) {

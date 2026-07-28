@@ -43,5 +43,12 @@ services:
       # URL do Front na Vercel
       - key: APP_URL_BASE
         sync: false
+      # Google Books
+      - key: GOOGLE_BOOKS_API_KEY
+        sync: false
+      - key: GOOGLE_BOOKS_IDIOMA
+        value: pt
+      - key: GOOGLE_BOOKS_MAX_POR_TEMA
+        value: "200"
       - key: JAVA_TOOL_OPTIONS
         value: -XX:MaxRAMPercentage=70.0 -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1

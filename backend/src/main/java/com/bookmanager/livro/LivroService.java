@@ -19,19 +19,19 @@ public class LivroService {
     private final LivroRepository livroRepository;
     private final LivroMapper livroMapper;
 
-    // Listar Livros com Filtro por Título e Paginação
+    // Listar Livros com Filtro por Título, Categoria e Paginação
     @Transactional(readOnly = true)
-    public RespostaPaginadaDTO<LivroResumoDTO> listar(String titulo, Pageable paginacao) {
-        Page<Livro> pagina = (titulo == null || titulo.isBlank())
-                ? livroRepository.findAll(paginacao)
-                : livroRepository.findByTituloContainingIgnoreCase(titulo.trim(), paginacao);
+    public RespostaPaginadaDTO<LivroResumoDTO> listar(String titulo, String categoria,
+            Pageable paginacao) {
+        Page<Livro> pagina = livroRepository.buscar(
+                curinga(titulo), categoria == null ? "" : categoria.trim(), paginacao);
         return RespostaPaginadaDTO.de(pagina.map(livroMapper::paraResumo));
     }
 
     // Buscar Livro por ID
     @Transactional(readOnly = true)
     public LivroRespostaDTO buscarPorId(Long id) {
-        return livroMapper.paraResposta(obter(id));
+        return livroMapper.paraResposta(obterComCategorias(id));
     }
 
     // Criar Novo Livro
@@ -44,7 +44,7 @@ public class LivroService {
     // Atualizar Livro por ID
     @Transactional
     public LivroRespostaDTO atualizar(Long id, LivroRequestDTO requisicao) {
-        Livro livro = obter(id);
+        Livro livro = obterComCategorias(id);
         livroMapper.atualizar(requisicao, livro);
         return livroMapper.paraResposta(livroRepository.save(livro));
     }
@@ -59,5 +59,15 @@ public class LivroService {
     private Livro obter(Long id) {
         return livroRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado: id " + id));
+    }
+
+    private Livro obterComCategorias(Long id) {
+        return livroRepository.findWithCategoriasById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado: id " + id));
+    }
+
+    // Busca Vazia Vira "%" e Casa com Todo o Acervo
+    private String curinga(String titulo) {
+        return (titulo == null || titulo.isBlank()) ? "%" : "%" + titulo.trim() + "%";
     }
 }

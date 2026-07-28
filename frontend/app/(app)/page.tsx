@@ -4,34 +4,40 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { listarLivros } from "@/lib/livros";
-import { eventosRecentes, estanteDoLivro, resumoDaEstante } from "@/lib/mock";
+import { listarCategorias } from "@/lib/categorias";
 import type { LivroResumo } from "@/lib/tipos";
 import Painel, { TituloSecao } from "@/components/ui/Painel";
+import Chip from "@/components/ui/Chip";
+import EstrelasNota from "@/components/ui/EstrelasNota";
 import { SimboloLivro } from "@/components/Logotipo";
 import CapaLivro from "@/components/livro/CapaLivro";
 import ResumoLeitura from "@/components/home/ResumoLeitura";
-import ContinueLendo from "@/components/home/ContinueLendo";
-import Timeline from "@/components/home/Timeline";
 
-const AMOSTRA = 12;
+const VITRINE = 6;
 
 // Página Inicial
 export default function PaginaInicio() {
-  const { data, isPending, isError } = useQuery({
+  const recentes = useQuery({
     queryKey: ["livros", "recentes"],
-    queryFn: () => listarLivros({ size: AMOSTRA, sort: "criadoEm,desc" }),
+    queryFn: () => listarLivros({ size: VITRINE, sort: "criadoEm,desc" }),
   });
 
-  const livros = data?.conteudo ?? [];
-  const total = data?.totalElementos ?? 0;
+  const destaques = useQuery({
+    queryKey: ["livros", "destaques"],
+    queryFn: () => listarLivros({ size: VITRINE, sort: "mediaAvaliacao,desc" }),
+  });
 
-  // TODO: Estante, Progresso e TimeLine ainda vêm de lib/mock.ts
-  const comEstante = livros.map((livro) => ({ livro, estante: estanteDoLivro(livro) }));
-  const lendo = comEstante.filter(({ estante }) => estante.status === "LENDO").slice(0, 3);
-  const eventos = eventosRecentes(livros);
-  const resumo = resumoDaEstante(livros, total);
+  const { data: categorias = [] } = useQuery({
+    queryKey: ["categorias"],
+    queryFn: listarCategorias,
+    staleTime: 10 * 60 * 1000,
+  });
 
-  if (isError) {
+  const total = recentes.data?.totalElementos ?? 0;
+  const carregando = recentes.isPending;
+  const listaDestaques = (destaques.data?.conteudo ?? []).filter((livro) => livro.mediaAvaliacao);
+
+  if (recentes.isError) {
     return (
       <Painel
         titulo="Não foi possível carregar"
@@ -40,15 +46,15 @@ export default function PaginaInicio() {
     );
   }
 
-  if (!isPending && total === 0) {
+  if (!carregando && total === 0) {
     return (
       <>
-        <ResumoLeitura lendo={0} lidos={0} total={0} />
+        <ResumoLeitura total={0} categorias={0} avaliados={0} />
         <Painel
           tracejado
           icone={<SimboloLivro tamanho={32} />}
-          titulo="Sua estante está vazia"
-          descricao="Adicione o primeiro livro para começar a acompanhar leituras, notas e progresso."
+          titulo="O acervo está vazio"
+          descricao="Cadastre o primeiro livro ou peça a um administrador para importar o catálogo do Google Books."
           acao={
             <Link
               href="/books/new"
@@ -66,66 +72,63 @@ export default function PaginaInicio() {
   return (
     <>
       <ResumoLeitura
-        lendo={resumo.lendo}
-        lidos={resumo.lidos}
-        total={resumo.total}
-        carregando={isPending}
+        total={total}
+        categorias={categorias.length}
+        avaliados={listaDestaques.length}
+        carregando={carregando}
       />
 
-      {isPending ? (
+      {carregando ? (
         <EsqueletoInicio />
       ) : (
         <>
-          {lendo.length > 0 && (
+          <section className="mb-11">
+            <TituloSecao acao={<AtalhoAcervo />}>Adicionados recentemente</TituloSecao>
+            <Vitrine livros={recentes.data?.conteudo ?? []} />
+          </section>
+
+          {listaDestaques.length > 0 && (
             <section className="mb-11">
-              <TituloSecao
-                acao={
-                  <Link
-                    href="/books"
-                    className="text-[13.5px] font-semibold text-terracota transition hover:text-terracota-escuro"
-                  >
-                    Ver estante
-                  </Link>
-                }
-              >
-                Continue lendo
+              <TituloSecao acao={<AtalhoAcervo rotulo="Ver melhor avaliados" />}>
+                Destaques
               </TituloSecao>
-              <ContinueLendo itens={lendo} />
+              <Vitrine livros={listaDestaques} mostrarNota />
             </section>
           )}
 
-          <div className="grid gap-11 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+          {categorias.length > 0 && (
             <section>
-              <TituloSecao>Atividade recente</TituloSecao>
-              <Timeline eventos={eventos} />
-            </section>
-
-            <section>
-              <TituloSecao
-                acao={
-                  <Link
-                    href="/books"
-                    className="text-[13.5px] font-semibold text-terracota transition hover:text-terracota-escuro"
-                  >
-                    Ver todos
+              <TituloSecao>Navegue por categoria</TituloSecao>
+              <div className="flex flex-wrap gap-2">
+                {categorias.slice(0, 18).map((categoria) => (
+                  <Link key={categoria.slug} href={`/books?categoria=${categoria.slug}`}>
+                    <Chip tom="contorno">{categoria.nome}</Chip>
                   </Link>
-                }
-              >
-                Adicionados
-              </TituloSecao>
-              <AdicionadosRecentemente livros={livros.slice(0, 6)} />
+                ))}
+              </div>
             </section>
-          </div>
+          )}
         </>
       )}
     </>
   );
 }
 
-// Últimos Livros Cadastrados
-function AdicionadosRecentemente({ livros }: { livros: LivroResumo[] }) {
+function AtalhoAcervo({ rotulo = "Ver acervo" }: { rotulo?: string }) {
   return (
-    <div className="grid grid-cols-3 gap-3.5 rounded-2xl border border-borda bg-superficie p-5">
+    <Link
+      href="/books"
+      className="text-[13.5px] font-semibold text-terracota transition hover:text-terracota-escuro"
+    >
+      {rotulo}
+    </Link>
+  );
+}
+
+// Faixa de Capas do Acervo
+function Vitrine({ livros, mostrarNota = false }: { livros: LivroResumo[]; mostrarNota?: boolean }) {
+  return (
+    <div className="grid grid-cols-3 gap-4 rounded-2xl border border-borda bg-superficie p-5 sm:grid-cols-6">
       {livros.map((livro) => (
         <Link
           key={livro.id}
@@ -143,6 +146,12 @@ function AdicionadosRecentemente({ livros }: { livros: LivroResumo[] }) {
           <span className="mt-2 line-clamp-2 block text-[12.5px] leading-snug text-tinta-2">
             {livro.titulo}
           </span>
+          {mostrarNota && livro.mediaAvaliacao && (
+            <span className="mt-1 flex items-center gap-1.5">
+              <EstrelasNota nota={Math.round(livro.mediaAvaliacao)} tamanho={11} />
+              <span className="text-[11px] text-suave-2">{livro.mediaAvaliacao.toFixed(1)}</span>
+            </span>
+          )}
         </Link>
       ))}
     </div>
@@ -152,16 +161,10 @@ function AdicionadosRecentemente({ livros }: { livros: LivroResumo[] }) {
 function EsqueletoInicio() {
   return (
     <div style={{ animation: "sk 1.3s ease-in-out infinite" }}>
+      <div className="mb-4 h-5 w-52 rounded bg-borda-forte" />
+      <div className="mb-11 h-[220px] rounded-2xl border border-borda bg-superficie" />
       <div className="mb-4 h-5 w-40 rounded bg-borda-forte" />
-      <div className="mb-11 grid gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="h-[116px] rounded-2xl border border-borda bg-superficie" />
-        ))}
-      </div>
-      <div className="grid gap-11 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
-        <div className="h-[320px] rounded-2xl border border-borda bg-superficie" />
-        <div className="h-[320px] rounded-2xl border border-borda bg-superficie" />
-      </div>
+      <div className="h-[220px] rounded-2xl border border-borda bg-superficie" />
     </div>
   );
 }

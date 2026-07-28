@@ -1,22 +1,22 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { BookOpen, CheckCircle2, Library } from "lucide-react";
+import { BookOpen, Library, Star } from "lucide-react";
 import { obterNome } from "@/lib/auth";
 import { CHAVE_NEUTRA, chaveAtual, interpretar } from "@/lib/saudacao";
 
 const semAssinatura = () => () => {};
 
-// Saudação e Números da Estante
+// Saudação e Números do Acervo
 export default function ResumoLeitura({
-  lendo,
-  lidos,
   total,
+  categorias,
+  avaliados,
   carregando = false,
 }: {
-  lendo: number;
-  lidos: number;
   total: number;
+  categorias: number;
+  avaliados: number;
   carregando?: boolean;
 }) {
   const nome = useSyncExternalStore(semAssinatura, obterNome, () => "Leitor");
@@ -33,9 +33,9 @@ export default function ResumoLeitura({
       </h1>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <Metrica Icone={BookOpen} valor={lendo} rotulo="lendo agora" carregando={carregando} />
-        <Metrica Icone={CheckCircle2} valor={lidos} rotulo="já lidos" carregando={carregando} />
-        <Metrica Icone={Library} valor={total} rotulo="na estante" carregando={carregando} />
+        <Metrica Icone={Library} valor={total} rotulo="no acervo" carregando={carregando} />
+        <Metrica Icone={BookOpen} valor={categorias} rotulo="categorias" carregando={carregando} />
+        <Metrica Icone={Star} valor={avaliados} rotulo="bem avaliados" carregando={carregando} />
       </div>
     </section>
   );
@@ -59,7 +59,7 @@ function Metrica({
       </span>
       <span className="min-w-0">
         <span className="block font-titulo text-[23px] font-bold leading-none tabular-nums tracking-[-0.02em]">
-          {carregando ? "—" : valor}
+          {carregando ? "—" : valor.toLocaleString("pt-BR")}
         </span>
         <span className="mt-1 block text-[13px] text-suave">{rotulo}</span>
       </span>

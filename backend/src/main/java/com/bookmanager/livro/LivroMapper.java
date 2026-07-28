@@ -1,5 +1,7 @@
 package com.bookmanager.livro;
 
+import com.bookmanager.categoria.Categoria;
+import com.bookmanager.categoria.dto.CategoriaRespostaDTO;
 import com.bookmanager.livro.dto.LivroRequestDTO;
 import com.bookmanager.livro.dto.LivroRespostaDTO;
 import com.bookmanager.livro.dto.LivroResumoDTO;
@@ -15,7 +17,11 @@ public interface LivroMapper {
 
     LivroResumoDTO paraResumo(Livro livro);
 
+    CategoriaRespostaDTO paraCategoria(Categoria categoria);
+
     Livro paraEntidade(LivroRequestDTO requisicao);
 
+    // Categorias Nao Sao Editadas pelo CRUD Manual
+    @org.mapstruct.Mapping(target = "categorias", ignore = true)
     void atualizar(LivroRequestDTO requisicao, @MappingTarget Livro livro);
 }

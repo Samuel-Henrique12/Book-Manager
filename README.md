@@ -113,6 +113,9 @@ Backend (valores padrão em `backend/src/main/resources/application.yml`):
 | `JWT_SECRET` | Segredo HMAC do JWT (mín. 32 bytes) | *(dev; **trocar em produção**)* |
 | `JWT_EXPIRACAO` | Validade do token (ISO-8601 Duration) | `PT8H` |
 | `CORS_ORIGENS` | Origens permitidas (CORS) | `http://localhost:3000` |
+| `GOOGLE_BOOKS_API_KEY` | Chave da Books API (opcional; sem ela a cota é menor) | *(vazio)* |
+| `GOOGLE_BOOKS_IDIOMA` | Restringe o idioma dos volumes importados | `pt` |
+| `GOOGLE_BOOKS_MAX_POR_TEMA` | Teto de livros importados por tema | `200` |
 
 Frontend:
 
@@ -132,15 +135,19 @@ Autenticação via `Authorization: Bearer <token>`. Documentação interativa em
 |---|---|---|---|
 | POST | `/auth/register` | Cria usuário e retorna token | ❌ |
 | POST | `/auth/login` | Autentica e retorna token | ❌ |
-| GET | `/books` | Lista livros (busca `?titulo=`, paginação `?page=&size=&sort=`) | ✅ |
+| GET | `/books` | Lista livros (busca `?titulo=`, filtro `?categoria=`, paginação `?page=&size=&sort=`) | ✅ |
 | POST | `/books/create` | Cria livro | ✅ |
 | GET | `/books/{id}` | Busca livro por ID | ✅ |
 | PUT | `/books/{id}` | Atualiza livro | ✅ |
 | DELETE | `/books/{id}` | Remove livro (soft delete) | ✅ |
+| GET | `/categorias` | Categorias com livros no acervo | ✅ |
+| POST | `/integracao/importar` | Importa o catálogo do Google Books | 🔒 ADMIN |
+| GET | `/integracao/importacao` | Progresso da importação | 🔒 ADMIN |
+| GET | `/integracao/buscar` | Consulta o Google Books (`?q=`) | ✅ |
 
 Erros seguem o padrão **[RFC 9457 `ProblemDetail`](https://www.rfc-editor.org/rfc/rfc9457)**; erros de validação incluem um mapa `campos` com a mensagem por campo.
 
-**Modelo `Livro`:** `titulo` (obrigatório), `autor` (obrigatório), `ano` (opcional), `descricao` (opcional).
+**Modelo `Livro`:** `titulo` e `autor` (obrigatórios); `ano`, `descricao`, `urlCapa`, `isbn` e `totalPaginas` (opcionais). Livros importados do Google Books trazem ainda `subtitulo`, `editora`, `dataPublicacao`, `idioma`, `mediaAvaliacao`, `totalAvaliacoes`, `linkPrevia` e as `categorias` associadas.
 
 ---
 
@@ -210,8 +217,8 @@ Deploy **100% gratuito** (sem cartão) com **Vercel** (frontend) + **Render** (A
 
 Funcionalidades planejadas para transformar o gerenciador em uma experiência estilo "estante social":
 
-- [ ] **Categorias/Tags** e filtro por gênero
+- [x] **Integração com Google Books** — importação em lote do catálogo, com capa, sinopse, ISBN e avaliação
+- [x] **Categorias/Tags** e filtro por gênero (server-side, sobre todo o acervo)
 - [ ] **Estantes por status de leitura** (quero ler, lendo, lido, abandonado, favorito)
 - [ ] **Avaliações** (nota + resenha) por livro
 - [ ] **Diário de leitura** — progresso por página, % lido e estimativa de tempo restante
-- [ ] **Integração com Google Books** — autopreenchimento de dados e capa ao cadastrar
