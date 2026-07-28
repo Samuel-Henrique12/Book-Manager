@@ -60,7 +60,7 @@ export default function FormAlterarSenha() {
         obrigatorio
         className="mb-5"
         rotulo="Senha atual"
-        placeholder="Sua senha de hoje"
+        placeholder="Senha atual"
         autoComplete="current-password"
         erro={errors.senhaAtual?.message}
         {...register("senhaAtual")}

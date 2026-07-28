@@ -259,6 +259,7 @@ function Comando-Up {
     Test-Docker
     Test-PortasLivres
     Acao "Subindo containers (db + api + web) com build..."
+    Neutro "A primeira build baixa as dependencias (alguns minutos). As seguintes reaproveitam o cache."
     Invoke-Compose @("up", "-d", "--build")
     Wait-Servico "$urlApi/actuator/health" "API" | Out-Null
     Wait-Servico $urlWeb "Frontend" | Out-Null
