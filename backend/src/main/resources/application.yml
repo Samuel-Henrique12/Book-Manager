@@ -73,3 +73,5 @@ app:
   verificacao:
     validade-confirmacao: PT24H
     validade-redefinicao: PT1H
+  admin:
+    aberto: ${ADMIN_ABERTO:true}

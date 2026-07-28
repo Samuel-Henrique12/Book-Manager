@@ -20,6 +20,11 @@ export function salvarSessao(token: string, nome?: string, lembrar = true) {
   }
 }
 
+// Mantém o Nome Exibido em Sincronia Após Edição na Conta
+export function salvarNome(nome: string) {
+  Cookies.set(NOME_COOKIE, nome, opcoes(true));
+}
+
 export function limparSessao() {
   Cookies.remove(TOKEN_COOKIE);
   Cookies.remove(NOME_COOKIE);

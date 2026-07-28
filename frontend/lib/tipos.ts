@@ -76,6 +76,23 @@ export interface EventoTimeline {
   spoiler?: boolean;
 }
 
+// Perfil de Acesso
+export type Perfil = "USUARIO" | "ADMIN";
+
+export interface Usuario {
+  id: number;
+  nome: string;
+  email: string;
+  perfil: Perfil;
+  emailConfirmado: boolean;
+  criadoEm: string;
+}
+
+// Conta do Usuário Autenticado
+export interface Conta extends Usuario {
+  podeAdministrar: boolean;
+}
+
 // Resposta Simples dos Fluxos de E-mail
 export interface MensagemResposta {
   mensagem: string;

@@ -3,14 +3,18 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
-import { Home, Library, LogOut, Plus } from "lucide-react";
+import { Home, Library, LogOut, Plus, Shield } from "lucide-react";
 import { limparSessao, obterEmail, obterNome } from "@/lib/auth";
+import { useConta } from "@/lib/conta";
 import Logotipo, { SimboloLivro } from "@/components/Logotipo";
 
 export const NAVEGACAO = [
   { href: "/", rotulo: "Início", Icone: Home },
   { href: "/books", rotulo: "Minha estante", Icone: Library },
 ];
+
+// Item Exibido Apenas a Quem Pode Administrar
+const ADMINISTRACAO = { href: "/admin/usuarios", rotulo: "Usuários", Icone: Shield };
 
 // Leitura da Sessão sem setState em Efeito
 const semAssinatura = () => () => {};
@@ -45,13 +49,17 @@ export function ConteudoNavegacao({
   const pathname = usePathname();
   const router = useRouter();
   const { nome, email } = useSessao();
+  const { data: conta } = useConta();
 
   // Em Modo Recolhido os Rótulos só Aparecem a Partir de XL
   const rotulo = recolhida ? "hidden xl:inline" : "inline";
   const centralizar = recolhida ? "justify-center xl:justify-start" : "";
 
+  // A Conta Carregada Vence o Cookie
+  const nomeExibido = conta?.nome ?? nome;
+
   const iniciais =
-    nome
+    nomeExibido
       .split(/\s+/)
       .slice(0, 2)
       .map((p) => p[0]?.toUpperCase() ?? "")
@@ -127,6 +135,34 @@ export function ConteudoNavegacao({
         })}
       </nav>
 
+      {conta?.podeAdministrar && (
+        <>
+          <div
+            className={`mb-2 mt-7 px-3 text-[11px] font-bold tracking-[0.09em] text-painel-rotulo ${
+              recolhida ? "hidden xl:block" : "block"
+            }`}
+          >
+            ADMINISTRAÇÃO
+          </div>
+          <nav className="flex flex-col gap-1">
+            <Link
+              href={ADMINISTRACAO.href}
+              onClick={aoNavegar}
+              title={ADMINISTRACAO.rotulo}
+              aria-current={pathname.startsWith(ADMINISTRACAO.href) ? "page" : undefined}
+              className={`flex h-[42px] items-center gap-3 rounded-[10px] px-3 text-[14px] font-medium transition ${centralizar} ${
+                pathname.startsWith(ADMINISTRACAO.href)
+                  ? "bg-terracota/22 text-painel-texto"
+                  : "text-painel-suave hover:bg-white/5 hover:text-painel-texto"
+              }`}
+            >
+              <ADMINISTRACAO.Icone size={18} strokeWidth={1.9} className="shrink-0" />
+              <span className={rotulo}>{ADMINISTRACAO.rotulo}</span>
+            </Link>
+          </nav>
+        </>
+      )}
+
       <div className="min-h-6 flex-1" />
 
       <div
@@ -134,13 +170,22 @@ export function ConteudoNavegacao({
           recolhida ? "justify-center xl:justify-start" : ""
         }`}
       >
-        <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-terracota text-[14px] font-semibold text-white">
-          {iniciais}
-        </div>
-        <div className={`min-w-0 flex-1 ${recolhida ? "hidden xl:block" : "block"}`}>
-          <div className="truncate text-[14px] font-semibold text-painel-texto">{nome}</div>
-          <div className="truncate text-[12px] text-painel-suave">{email}</div>
-        </div>
+        <Link
+          href="/conta"
+          onClick={aoNavegar}
+          title="Minha conta"
+          className={`flex min-w-0 flex-1 items-center gap-3 rounded-[10px] p-1 transition hover:bg-white/5 ${
+            recolhida ? "flex-none xl:flex-1" : ""
+          }`}
+        >
+          <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-terracota text-[14px] font-semibold text-white">
+            {iniciais}
+          </div>
+          <div className={`min-w-0 flex-1 ${recolhida ? "hidden xl:block" : "block"}`}>
+            <div className="truncate text-[14px] font-semibold text-painel-texto">{nomeExibido}</div>
+            <div className="truncate text-[12px] text-painel-suave">{email}</div>
+          </div>
+        </Link>
         <button
           type="button"
           onClick={sair}

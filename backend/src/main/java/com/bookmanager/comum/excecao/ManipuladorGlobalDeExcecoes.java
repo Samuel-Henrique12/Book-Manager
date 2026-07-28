@@ -5,6 +5,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,6 +50,13 @@ public class ManipuladorGlobalDeExcecoes {
     @ExceptionHandler(FalhaNoEnvioDeEmailException.class)
     public ProblemDetail tratarFalhaDeEmail(FalhaNoEnvioDeEmailException ex) {
         return montar(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de e-mail indisponível", ex.getMessage());
+    }
+
+    // Exception Handler de Acesso Negado (403)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail tratarAcessoNegado(AccessDeniedException ex) {
+        return montar(HttpStatus.FORBIDDEN, "Acesso negado",
+                "Você não tem permissão para executar esta operação");
     }
 
     // Exception Handler de Validação de Campos (400)

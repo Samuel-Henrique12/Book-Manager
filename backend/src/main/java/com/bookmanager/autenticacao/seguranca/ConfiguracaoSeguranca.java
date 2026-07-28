@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,9 +27,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 // Configuracao de Seguranca Stateless com JWT
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 @EnableConfigurationProperties({PropriedadesJwt.class, PropriedadesCors.class,
-        PropriedadesEmail.class, PropriedadesVerificacao.class})
+        PropriedadesEmail.class, PropriedadesVerificacao.class, PropriedadesAdmin.class})
 public class ConfiguracaoSeguranca {
 
     // Rotas Publicas (Sem Auth)

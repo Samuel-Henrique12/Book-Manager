@@ -1,4 +1,15 @@
-import type { StatusLeitura, TipoEvento } from "./tipos";
+import type { Perfil, StatusLeitura, TipoEvento } from "./tipos";
+
+export const ROTULO_PERFIL: Record<Perfil, string> = {
+  USUARIO: "Leitor",
+  ADMIN: "Administrador",
+};
+
+// Cores do Badge de Perfil
+export const CLASSE_PERFIL: Record<Perfil, string> = {
+  USUARIO: "bg-superficie-2 text-suave",
+  ADMIN: "bg-terracota-lavagem text-terracota-escuro",
+};
 
 export const ROTULO_STATUS: Record<StatusLeitura, string> = {
   QUERO_LER: "Quero ler",

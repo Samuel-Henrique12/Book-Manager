@@ -3,13 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm, type FieldValues, type Path, type UseFormSetError } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
 import { Check, Loader2, Lock, Mail, User } from "lucide-react";
 import { entrar, registrar } from "@/lib/contas";
 import { ApiError } from "@/lib/api";
+import { aplicarErro } from "@/lib/erros";
 import { obterNome } from "@/lib/auth";
 import CampoFormulario from "@/components/CampoFormulario";
 import Cabecalho, { CLASSE_BOTAO } from "@/components/login/Cabecalho";
@@ -291,14 +291,4 @@ function Rodape({
       </button>
     </p>
   );
-}
-
-function aplicarErro<T extends FieldValues>(erro: unknown, setError: UseFormSetError<T>) {
-  if (erro instanceof ApiError && erro.campos) {
-    Object.entries(erro.campos).forEach(([campo, mensagem]) =>
-      setError(campo as Path<T>, { message: mensagem }),
-    );
-    return;
-  }
-  toast.error(erro instanceof ApiError ? erro.message : "Não foi possível conectar ao servidor");
 }

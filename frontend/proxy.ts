@@ -28,6 +28,8 @@ export const config = {
   matcher: [
     "/",
     "/books/:path*",
+    "/conta",
+    "/admin/:path*",
     "/login",
     "/confirmar-email",
     "/esqueci-senha",

@@ -22,4 +22,14 @@ public interface TokenVerificacaoRepository extends JpaRepository<TokenVerificac
                AND t.usadoEm IS NULL
             """)
     void invalidarPendentes(@Param("usuario") Usuario usuario, @Param("tipo") TipoToken tipo);
+
+    // Invalida Todos os Pendentes ao Excluir a Conta
+    @Modifying
+    @Query("""
+            UPDATE TokenVerificacao t
+               SET t.usadoEm = CURRENT_TIMESTAMP
+             WHERE t.usuario = :usuario
+               AND t.usadoEm IS NULL
+            """)
+    void invalidarTodosDoUsuario(@Param("usuario") Usuario usuario);
 }
