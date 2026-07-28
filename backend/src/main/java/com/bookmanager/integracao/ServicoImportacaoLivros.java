@@ -1,6 +1,7 @@
 package com.bookmanager.integracao;
 
 import com.bookmanager.comum.excecao.ConflitoException;
+import com.bookmanager.comum.excecao.IntegracaoIndisponivelException;
 import com.bookmanager.integracao.dto.ProgressoImportacaoDTO;
 import com.bookmanager.integracao.dto.VolumeGoogleDTO;
 import java.util.List;
@@ -37,13 +38,21 @@ public class ServicoImportacaoLivros {
         log.info("Importação do Google Books iniciada: {} temas, até {} livros por tema",
                 temas.size(), propriedades.maxPorTema());
 
+        int indisponiveis = 0;
+
         try {
             for (String tema : temas) {
                 progresso.iniciarTema(tema);
-                importarTema(tema);
+                // Um Tema que Falha Nao Leva os Outros Junto
+                try {
+                    importarTema(tema);
+                } catch (IntegracaoIndisponivelException ex) {
+                    indisponiveis++;
+                    log.warn("Tema '{}' ficou de fora: {}", tema, ex.getMessage());
+                }
                 progresso.concluirTema();
             }
-            progresso.liberar("Importação concluída");
+            progresso.liberar(mensagemFinal(indisponiveis, temas.size()));
         } catch (RuntimeException ex) {
             log.error("Importação interrompida", ex);
             progresso.liberar("Importação interrompida: " + ex.getMessage());
@@ -55,6 +64,19 @@ public class ServicoImportacaoLivros {
 
     public ProgressoImportacaoDTO progresso() {
         return progresso.instantaneo();
+    }
+
+    // Deixa Claro Quando o Acervo Veio Incompleto por Indisponibilidade do Google
+    private String mensagemFinal(int indisponiveis, int totalTemas) {
+        if (indisponiveis == 0) {
+            return "Importação concluída";
+        }
+        if (indisponiveis == totalTemas) {
+            return "Nenhum tema pôde ser importado: o Google Books está indisponível. "
+                    + "Tente novamente em alguns minutos.";
+        }
+        return "Importação concluída — %d de %d temas ficaram de fora (Google Books instável)."
+                .formatted(indisponiveis, totalTemas);
     }
 
     private void importarTema(String tema) {

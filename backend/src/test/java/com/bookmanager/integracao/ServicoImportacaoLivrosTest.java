@@ -183,7 +183,7 @@ class ServicoImportacaoLivrosTest {
     }
 
     @Test
-    @DisplayName("API fora do ar encerra a importação com mensagem e libera a trava")
+    @DisplayName("API fora do ar em todos os temas encerra com mensagem clara e libera a trava")
     void apiForaDoAr() {
         when(integracaoLivrosService.buscar(any(), anyInt(), anyInt()))
                 .thenThrow(new IntegracaoIndisponivelException("Google Books indisponível"));
@@ -193,8 +193,29 @@ class ServicoImportacaoLivrosTest {
 
         ProgressoImportacaoDTO resultado = servico.progresso();
         assertThat(resultado.emAndamento()).isFalse();
-        assertThat(resultado.mensagem()).contains("interrompida");
+        assertThat(resultado.mensagem()).contains("Nenhum tema pôde ser importado");
         assertThat(resultado.importados()).isZero();
+    }
+
+    @Test
+    @DisplayName("Tema indisponível não derruba os demais")
+    void temaIndisponivelNaoDerrubaOsOutros() {
+        montar(List.of("ficcao", "historia", "tecnologia"), 40);
+        when(integracaoLivrosService.buscar(eq("ficcao"), anyInt(), anyInt()))
+                .thenThrow(new IntegracaoIndisponivelException("503 do Google"));
+        when(integracaoLivrosService.buscar(eq("historia"), anyInt(), anyInt()))
+                .thenReturn(List.of(volume("a")));
+        when(integracaoLivrosService.buscar(eq("tecnologia"), anyInt(), anyInt()))
+                .thenReturn(List.of(volume("b")));
+        when(importadorLivros.importar(any())).thenReturn(true);
+
+        servico.agendar();
+        servico.executar();
+
+        ProgressoImportacaoDTO resultado = servico.progresso();
+        assertThat(resultado.importados()).isEqualTo(2);
+        assertThat(resultado.temasConcluidos()).isEqualTo(3);
+        assertThat(resultado.mensagem()).contains("1 de 3 temas ficaram de fora");
     }
 
     @Test
