@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CircleCheckBig, Loader2, TriangleAlert } from "lucide-react";
 import { confirmarEmail } from "@/lib/contas";
 import { ApiError } from "@/lib/api";
@@ -58,6 +58,8 @@ function Verificacao({ token }: { token: string }) {
 }
 
 function Resultado({ ok, mensagem }: { ok: boolean; mensagem: string }) {
+  const router = useRouter();
+
   return (
     <div style={{ animation: "rise 0.35s ease-out both" }}>
       <span
@@ -77,9 +79,23 @@ function Resultado({ ok, mensagem }: { ok: boolean; mensagem: string }) {
       </h1>
       <p className="mt-3 text-[16px] leading-relaxed text-tinta-2">{mensagem}</p>
 
-      <Link href="/login" className={`${CLASSE_BOTAO} no-underline`}>
-        {ok ? "Entrar agora" : "Voltar para o login"}
-      </Link>
+      {ok ? (
+        // Entrar Na Sessão
+        <button
+          type="button"
+          onClick={() => {
+            router.replace("/");
+            router.refresh();
+          }}
+          className={CLASSE_BOTAO}
+        >
+          Entrar
+        </button>
+      ) : (
+        <Link href="/login" className={`${CLASSE_BOTAO} no-underline`}>
+          Voltar para o login
+        </Link>
+      )}
     </div>
   );
 }

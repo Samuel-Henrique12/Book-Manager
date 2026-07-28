@@ -125,6 +125,22 @@ Por isso a aplicação tem dois adaptadores, escolhidos por `EMAIL_PROVEDOR`:
 
 > Trocar de provedor depois é barato: `ServicoEmail` é uma interface, e só o adaptador muda.
 
+### Se o envio falhar com 503
+
+A API devolve sempre a mesma mensagem genérica; o motivo real fica no log do Render. Procure por `Brevo`:
+
+```
+Brevo recusou o envio de '...' — HTTP 401 — remetente '...' — resposta: {"message":"...","code":"..."}
+```
+
+| Resposta da Brevo | Causa e correção |
+|---|---|
+| `unrecognised IP address` | A conta está com **Authorised IPs** ativo. O plano free do Render usa [faixas de saída compartilhadas](https://render.com/docs/outbound-ip-addresses), não IP fixo — liberar um IP só funciona até ele mudar. Desative a restrição em [app.brevo.com/security/authorised_ips](https://app.brevo.com/security/authorised_ips). |
+| `Key not found` / `unauthorized` | Chave errada, cortada ou com espaço. Deve começar com `xkeysib-` e ser uma **API key**, não uma chave SMTP (são listas diferentes em *SMTP & API*). |
+| Mensagem citando `sender` | `MAIL_FROM` não bate exatamente com um remetente verificado. |
+
+> Remetente em domínio freemail (`@gmail.com`) gera aviso no painel mas **não** bloqueia: a Brevo substitui o endereço por um compatível. É questão de entregabilidade, não de erro.
+
 ---
 
 ## Resumo das variáveis de ambiente

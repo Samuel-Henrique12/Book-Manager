@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,6 +34,7 @@ export default function PaginaRedefinirSenha() {
 }
 
 function Redefinicao() {
+  const router = useRouter();
   const token = useSearchParams().get("token");
   const [concluido, setConcluido] = useState(false);
   const {
@@ -76,9 +77,13 @@ function Redefinicao() {
       <Resultado
         tom="ok"
         titulo="Senha alterada"
-        texto="Sua nova senha já está valendo. Entre na conta para voltar à estante."
-        acao="Entrar agora"
-        href="/login"
+        texto="Sua nova senha já está valendo e sua sessão foi aberta."
+        acao="Entrar"
+        // Entrar na Sessão
+        aoAgir={() => {
+          router.replace("/");
+          router.refresh();
+        }}
       />
     );
   }
@@ -138,12 +143,14 @@ function Resultado({
   texto,
   acao,
   href,
+  aoAgir,
 }: {
   tom: "ok" | "erro";
   titulo: string;
   texto: string;
   acao: string;
-  href: string;
+  href?: string;
+  aoAgir?: () => void;
 }) {
   const ok = tom === "ok";
   return (
@@ -163,9 +170,15 @@ function Resultado({
         {titulo}
       </h1>
       <p className="mt-3 text-[16px] leading-relaxed text-tinta-2">{texto}</p>
-      <Link href={href} className={`${CLASSE_BOTAO} no-underline`}>
-        {acao}
-      </Link>
+      {aoAgir ? (
+        <button type="button" onClick={aoAgir} className={CLASSE_BOTAO}>
+          {acao}
+        </button>
+      ) : (
+        <Link href={href ?? "/login"} className={`${CLASSE_BOTAO} no-underline`}>
+          {acao}
+        </Link>
+      )}
     </div>
   );
 }

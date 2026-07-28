@@ -5,6 +5,7 @@ import com.bookmanager.autenticacao.dto.LoginRequestDTO;
 import com.bookmanager.autenticacao.dto.MensagemRespostaDTO;
 import com.bookmanager.autenticacao.dto.RedefinirSenhaRequestDTO;
 import com.bookmanager.autenticacao.dto.RegistroRequestDTO;
+import com.bookmanager.autenticacao.dto.SessaoRespostaDTO;
 import com.bookmanager.autenticacao.dto.TokenRequestDTO;
 import com.bookmanager.autenticacao.dto.TokenRespostaDTO;
 import jakarta.validation.Valid;
@@ -36,9 +37,9 @@ public class AutenticacaoController {
         return ResponseEntity.ok(autenticacaoService.login(requisicao));
     }
 
-    // Confirmacao de E-mail
+    // Confirmacao de E-mail — Volta na Sessão
     @PostMapping("/confirmar")
-    public ResponseEntity<MensagemRespostaDTO> confirmar(@Valid @RequestBody TokenRequestDTO requisicao) {
+    public ResponseEntity<SessaoRespostaDTO> confirmar(@Valid @RequestBody TokenRequestDTO requisicao) {
         return ResponseEntity.ok(autenticacaoService.confirmarEmail(requisicao));
     }
 
@@ -54,9 +55,9 @@ public class AutenticacaoController {
         return ResponseEntity.ok(autenticacaoService.solicitarRedefinicao(requisicao));
     }
 
-    // Conclusao da Redefinicao de Senha
+    // Conclusão da Redefinição de Senha — Volta na Sessão
     @PostMapping("/senha/redefinir")
-    public ResponseEntity<MensagemRespostaDTO> redefinirSenha(
+    public ResponseEntity<SessaoRespostaDTO> redefinirSenha(
             @Valid @RequestBody RedefinirSenhaRequestDTO requisicao) {
         return ResponseEntity.ok(autenticacaoService.redefinirSenha(requisicao));
     }

@@ -82,6 +82,16 @@ export interface MensagemResposta {
   email?: string | null;
 }
 
+// Resposta que Já Vem com Sessão Aberta
+export interface SessaoResposta {
+  mensagem: string;
+  nome: string;
+  email: string;
+  token: string;
+  tipo: string;
+  expiraEmSegundos: number;
+}
+
 // Interface para Resposta de Token
 export interface TokenResposta {
   token: string;

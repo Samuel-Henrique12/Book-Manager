@@ -92,7 +92,7 @@ public class ServicoEmailBrevo implements ServicoEmail {
                                 mensagem.assunto(), status.value(), propriedades.remetente(),
                                 lerCorpo(resposta));
                         throw new FalhaNoEnvioDeEmailException(MENSAGEM_GENERICA);
-                    }, false);
+                    });
         } catch (RestClientException ex) {
             log.error("Falha de rede ao falar com a Brevo ao enviar '{}'", mensagem.assunto(), ex);
             throw new FalhaNoEnvioDeEmailException(MENSAGEM_GENERICA);

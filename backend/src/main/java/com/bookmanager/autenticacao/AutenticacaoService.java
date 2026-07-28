@@ -5,6 +5,7 @@ import com.bookmanager.autenticacao.dto.LoginRequestDTO;
 import com.bookmanager.autenticacao.dto.MensagemRespostaDTO;
 import com.bookmanager.autenticacao.dto.RedefinirSenhaRequestDTO;
 import com.bookmanager.autenticacao.dto.RegistroRequestDTO;
+import com.bookmanager.autenticacao.dto.SessaoRespostaDTO;
 import com.bookmanager.autenticacao.dto.TokenRequestDTO;
 import com.bookmanager.autenticacao.dto.TokenRespostaDTO;
 import com.bookmanager.autenticacao.seguranca.ServicoTokenJwt;
@@ -91,9 +92,9 @@ public class AutenticacaoService {
         return new TokenRespostaDTO(token, TIPO_TOKEN, servicoTokenJwt.obterExpiracaoEmSegundos());
     }
 
-    // Ativa a Conta pelo Link Recebido
+    // Ativa a Conta pelo Link Recebido e Ja Abre Sessao
     @Transactional
-    public MensagemRespostaDTO confirmarEmail(TokenRequestDTO requisicao) {
+    public SessaoRespostaDTO confirmarEmail(TokenRequestDTO requisicao) {
         Usuario usuario = servicoVerificacao.consumir(requisicao.token(), TipoToken.CONFIRMACAO_EMAIL);
 
         if (!usuario.isEmailConfirmado()) {
@@ -101,7 +102,7 @@ public class AutenticacaoService {
             usuarioRepository.save(usuario);
         }
 
-        return new MensagemRespostaDTO("E-mail confirmado. Já pode entrar.", usuario.getEmail());
+        return montarSessao("Conta confirmada. Bem-vindo!", usuario);
     }
 
     // Reenvia a Confirmacao sem Revelar se a Conta Existe
@@ -127,9 +128,9 @@ public class AutenticacaoService {
         return new MensagemRespostaDTO(AVISO_NEUTRO, null);
     }
 
-    // Conclui a Redefinicao de Senha
+    // Conclui a Redefinição de Senha e Abre Sessão
     @Transactional
-    public MensagemRespostaDTO redefinirSenha(RedefinirSenhaRequestDTO requisicao) {
+    public SessaoRespostaDTO redefinirSenha(RedefinirSenhaRequestDTO requisicao) {
         Usuario usuario = servicoVerificacao.consumir(requisicao.token(), TipoToken.REDEFINICAO_SENHA);
 
         if (codificadorDeSenha.matches(requisicao.senha(), usuario.getSenha())) {
@@ -140,7 +141,14 @@ public class AutenticacaoService {
         usuario.setEmailConfirmado(true);
         usuarioRepository.save(usuario);
 
-        return new MensagemRespostaDTO("Senha alterada. Já pode entrar.", usuario.getEmail());
+        return montarSessao("Senha alterada com sucesso.", usuario);
+    }
+
+    // Emite o JWT para Quem Ja Provou Controle do E-mail
+    private SessaoRespostaDTO montarSessao(String mensagem, Usuario usuario) {
+        String token = servicoTokenJwt.gerarToken(usuario.getEmail());
+        return new SessaoRespostaDTO(mensagem, usuario.getNome(), usuario.getEmail(),
+                token, TIPO_TOKEN, servicoTokenJwt.obterExpiracaoEmSegundos());
     }
 
     private void enviarConfirmacao(Usuario usuario) {
