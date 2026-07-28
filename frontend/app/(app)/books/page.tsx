@@ -122,7 +122,7 @@ export default function PaginaEstante() {
     <>
       <header className="mb-7 flex flex-wrap items-end justify-between gap-5">
         <div>
-          <h1 className="font-serif text-[32px] font-medium leading-tight tracking-[-0.015em] sm:text-[38px]">
+          <h1 className="font-titulo text-[30px] font-bold leading-tight tracking-[-0.035em] sm:text-[36px]">
             Minha estante
           </h1>
           <p className="mt-1 text-[15px] text-suave">

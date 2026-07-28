@@ -35,6 +35,9 @@
 
   --font-sans: var(--font-instrument), system-ui, sans-serif;
   --font-serif: var(--font-newsreader), Georgia, serif;
+  /* Títulos da área logada. A serifada fica no login, nos e-mails e nos
+     títulos de livro — ali o clima editorial é proposital. */
+  --font-titulo: var(--font-space), var(--font-instrument), system-ui, sans-serif;
 }
 
 body {

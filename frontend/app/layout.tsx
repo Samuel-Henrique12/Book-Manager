@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Sans, Newsreader } from "next/font/google";
+import { Instrument_Sans, Newsreader, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers";
 
@@ -16,6 +16,13 @@ const serif = Newsreader({
   display: "swap",
 });
 
+// Títulos da Área Logada
+const titulo = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Book Manager",
   description: "Toda a sua estante, organizada em um só lugar.",
@@ -28,7 +35,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${sans.variable} ${serif.variable} antialiased`}>
+    <html
+      lang="pt-BR"
+      className={`${sans.variable} ${serif.variable} ${titulo.variable} antialiased`}
+    >
       <body className="font-sans">
         <Providers>{children}</Providers>
       </body>

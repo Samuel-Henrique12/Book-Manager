@@ -125,7 +125,7 @@ export default function LivroForm({ id, seed, valoresIniciais }: Props) {
       </Link>
 
       <div className="max-w-[980px]">
-        <h1 className="mb-1 font-serif text-[32px] font-medium tracking-[-0.015em]">
+        <h1 className="mb-1 font-titulo text-[30px] font-bold tracking-[-0.03em]">
           {edicao ? "Editar livro" : "Novo livro"}
         </h1>
         <p className="mb-7 text-[15px] text-suave">

@@ -39,7 +39,7 @@ export default function ModalBoasVindas({
           <Check size={26} strokeWidth={2.6} />
         </span>
 
-        <h2 className="font-serif text-[22px] font-medium leading-snug">
+        <h2 className="font-titulo text-[21px] font-bold leading-snug tracking-[-0.025em]">
           Bem-vindo de volta, {nome.split(/\s+/)[0]}
         </h2>
       </div>

@@ -63,7 +63,7 @@ export default function ModalConfirmacao({
           <Trash2 size={22} strokeWidth={1.8} />
         </div>
 
-        <h3 id="titulo-modal" className="mb-2 font-serif text-[22px] font-medium">
+        <h3 id="titulo-modal" className="mb-2 font-titulo text-[21px] font-bold tracking-[-0.025em]">
           {titulo}
         </h3>
         <p className="mb-6 text-[15px] leading-relaxed text-suave">{descricao}</p>
