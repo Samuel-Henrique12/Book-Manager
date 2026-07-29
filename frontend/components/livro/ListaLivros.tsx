@@ -77,10 +77,8 @@ export default function ListaLivros({
           {livros.map((livro) => (
             <tr
               key={livro.id}
-              onClick={podeGerenciar ? () => router.push(`/books/${livro.id}/edit`) : undefined}
-              className={`border-b border-borda transition last:border-b-0 hover:bg-superficie-2 ${
-                podeGerenciar ? "cursor-pointer" : ""
-              }`}
+              onClick={() => router.push(`/books/${livro.id}`)}
+              className="cursor-pointer border-b border-borda transition last:border-b-0 hover:bg-superficie-2"
             >
               <td className="px-5 py-3">
                 <div className="flex min-w-0 items-center gap-3.5">

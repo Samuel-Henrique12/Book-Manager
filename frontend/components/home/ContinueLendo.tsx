@@ -18,7 +18,7 @@ export default function ContinueLendo({
       {itens.map(({ livro, estante }, indice) => (
         <Link
           key={livro.id}
-          href={`/books/${livro.id}/edit`}
+          href={`/books/${livro.id}`}
           style={{ animation: `rise 0.45s ease-out ${indice * 70}ms both` }}
           className="flex gap-4 rounded-2xl border border-borda bg-superficie p-3.5 transition hover:-translate-y-0.5 hover:border-borda-forte hover:shadow-[0_14px_30px_-18px_rgba(60,45,20,0.4)]"
         >

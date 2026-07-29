@@ -132,7 +132,7 @@ function Vitrine({ livros, mostrarNota = false }: { livros: LivroResumo[]; mostr
       {livros.map((livro) => (
         <Link
           key={livro.id}
-          href={`/books/${livro.id}/edit`}
+          href={`/books/${livro.id}`}
           title={`${livro.title} — ${livro.author}`}
           className="group block"
         >

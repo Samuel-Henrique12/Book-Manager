@@ -22,28 +22,18 @@ export default function CartaoLivro({
 
   return (
     <article className="group relative">
-      {/* Sem Tela de Detalhe Ainda: Quem Nao Gerencia So Visualiza a Capa */}
-      {podeGerenciar ? (
-        <Link
-          href={`/books/${livro.id}/edit`}
-          aria-label={`Abrir ${livro.title}`}
-          className="block rounded-[10px] transition duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-terracota group-hover:-translate-y-1"
-        >
-          <CapaLivro
-            id={livro.id}
-            titulo={livro.title}
-            autor={livro.author}
-            urlCapa={livro.coverUrl}
-          />
-        </Link>
-      ) : (
+      <Link
+        href={`/books/${livro.id}`}
+        aria-label={`Abrir ${livro.title}`}
+        className="block rounded-[10px] transition duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-terracota group-hover:-translate-y-1"
+      >
         <CapaLivro
           id={livro.id}
           titulo={livro.title}
           autor={livro.author}
           urlCapa={livro.coverUrl}
         />
-      )}
+      </Link>
 
       {/* Ações ao Passar o Mouse — Somente Administradores */}
       {podeGerenciar && (
