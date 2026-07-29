@@ -1,7 +1,7 @@
 import { apiFetch } from "./api";
 import type { Categoria } from "./tipos";
 
-// Categorias que Possuem Livros no Acervo
-export function listarCategorias() {
-  return apiFetch<Categoria[]>("/categorias");
+// Categorias com Volume Mínimo de Livros (Ordenadas das Maiores pra Menores)
+export function listarCategorias(min = 1) {
+  return apiFetch<Categoria[]>(`/categorias?min=${min}`);
 }

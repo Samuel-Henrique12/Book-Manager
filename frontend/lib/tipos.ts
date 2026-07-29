@@ -11,6 +11,7 @@ export interface Categoria {
   id: number;
   name: string;
   slug: string;
+  bookCount?: number | null;
 }
 
 export interface Livro {
@@ -49,6 +50,9 @@ export type LivroResumo = Pick<
   // Marcação Pessoal de Quem Está Consultando
   shelfStatus?: StatusLeitura | null;
   favorite?: boolean | null;
+  // Nota dos Leitores (averageRating vem do Google Books)
+  communityRating?: number | null;
+  communityRatingsCount?: number | null;
 };
 
 // Vaga do Livro na Estante do Leitor
@@ -104,6 +108,19 @@ export interface Comentario {
   text: string;
   spoiler: boolean;
   mine: boolean;
+  createdAt: string;
+}
+
+// Evento do Feed: Uma Resenha ou um Comentário Recente
+export interface Atividade {
+  type: "REVIEW" | "COMMENT";
+  readerName: string;
+  bookId: number;
+  bookTitle: string;
+  bookCoverUrl?: string | null;
+  rating?: number | null;
+  text: string;
+  spoiler: boolean;
   createdAt: string;
 }
 

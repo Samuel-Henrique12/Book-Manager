@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ExternalLink, Loader2, Pencil, Trash2 } from "lucide-react";
+import { ChevronLeft, ExternalLink, Loader2, Pencil, ShieldCheck, Trash2 } from "lucide-react";
 import { obterLivro, removerLivro } from "@/lib/livros";
 import { useAlerta } from "@/lib/alerta";
 import { useConta } from "@/lib/conta";
@@ -106,26 +106,30 @@ export default function PaginaLivro() {
 
           <FichaTecnica livro={livro} />
 
-          <BotaoEstante livroId={id} totalDoLivro={livro.pageCount} />
 
           {podeGerenciar && (
-            <div className="mt-5 flex gap-2">
-              <Link
-                href={`/books/${livro.id}/edit`}
-                className="flex h-[38px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-borda-forte text-[13.5px] font-semibold transition hover:bg-creme"
-              >
-                <Pencil size={14} strokeWidth={1.9} />
-                Editar
-              </Link>
-              <button
-                type="button"
-                onClick={() => setConfirmando(true)}
-                className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-borda-forte text-tinta-2 transition hover:border-erro/40 hover:bg-erro-lavagem hover:text-erro"
-                aria-label="Excluir livro"
-                title="Excluir livro"
-              >
-                <Trash2 size={15} strokeWidth={1.9} />
-              </button>
+            <div className="mt-5 border-t border-borda pt-4">
+              <span className="mb-2.5 flex items-center gap-1.5 text-[11px] font-bold tracking-[0.09em] text-suave-2">
+                <ShieldCheck size={12} strokeWidth={2} />
+                ADMINISTRAÇÃO
+              </span>
+              <div className="flex gap-2">
+                <Link
+                  href={`/books/${livro.id}/edit`}
+                  className="flex h-[38px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-borda-forte bg-superficie-2 text-[13.5px] font-semibold text-tinta-2 transition hover:bg-superficie hover:text-terracota"
+                >
+                  <Pencil size={14} strokeWidth={1.9} />
+                  Editar
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setConfirmando(true)}
+                  className="flex h-[38px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-borda-forte bg-superficie-2 text-[13.5px] font-semibold text-tinta-2 transition hover:border-erro/40 hover:bg-erro-lavagem hover:text-erro"
+                >
+                  <Trash2 size={14} strokeWidth={1.9} />
+                  Excluir
+                </button>
+              </div>
             </div>
           )}
         </aside>
@@ -166,7 +170,11 @@ export default function PaginaLivro() {
             </div>
           )}
 
-          <section className="mt-7">
+          <div className="mt-6">
+            <BotaoEstante livroId={id} totalDoLivro={livro.pageCount} />
+          </div>
+
+          <section className="mt-8">
             <h2 className="mb-2.5 text-[11px] font-bold tracking-[0.09em] text-suave-2">SINOPSE</h2>
             {livro.description ? (
               <p className="max-w-[65ch] whitespace-pre-line text-[15.5px] leading-relaxed text-tinta-2">

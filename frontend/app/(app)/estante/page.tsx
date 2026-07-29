@@ -10,6 +10,7 @@ import type { ItemEstante, StatusLeitura } from "@/lib/tipos";
 import CapaLivro from "@/components/livro/CapaLivro";
 import BarraProgresso from "@/components/ui/BarraProgresso";
 import Chip from "@/components/ui/Chip";
+import Metrica from "@/components/ui/Metrica";
 import Painel from "@/components/ui/Painel";
 import Paginacao from "@/components/Paginacao";
 import Skeletons from "@/components/Skeletons";
@@ -48,6 +49,12 @@ export default function PaginaEstante() {
 
   const itens = data?.content ?? [];
 
+  // Reclicar no Mesmo Card Remove o Filtro
+  function alternar(chave: Aba) {
+    setAba((atual) => (atual === chave ? "TODOS" : chave));
+    setPagina(0);
+  }
+
   function contar(chave: Aba): number | undefined {
     if (!resumo) return undefined;
     if (chave === "TODOS") return resumo.total;
@@ -75,9 +82,27 @@ export default function PaginaEstante() {
       {/* Paginômetro e Contadores */}
       <div className="mb-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Metrica Icone={ScrollText} valor={resumo?.pagesRead} rotulo="páginas lidas" destaque />
-        <Metrica Icone={Library} valor={resumo?.read} rotulo="livros lidos" />
-        <Metrica Icone={BookOpen} valor={resumo?.reading} rotulo="lendo agora" />
-        <Metrica Icone={Heart} valor={resumo?.favorites} rotulo="favoritos" />
+        <Metrica
+          Icone={Library}
+          valor={resumo?.read}
+          rotulo="livros lidos"
+          ativa={aba === "LIDO"}
+          onClick={() => alternar("LIDO")}
+        />
+        <Metrica
+          Icone={BookOpen}
+          valor={resumo?.reading}
+          rotulo="lendo agora"
+          ativa={aba === "LENDO"}
+          onClick={() => alternar("LENDO")}
+        />
+        <Metrica
+          Icone={Heart}
+          valor={resumo?.favorites}
+          rotulo="favoritos"
+          ativa={aba === "FAVORITOS"}
+          onClick={() => alternar("FAVORITOS")}
+        />
       </div>
 
       <div className="-mx-5 mb-6 overflow-x-auto px-5 sm:mx-0 sm:px-0">
@@ -144,69 +169,42 @@ export default function PaginaEstante() {
   );
 }
 
-function Metrica({
-  Icone,
-  valor,
-  rotulo,
-  destaque = false,
-}: {
-  Icone: typeof Library;
-  valor?: number;
-  rotulo: string;
-  destaque?: boolean;
-}) {
-  return (
-    <div
-      className={`rounded-2xl border px-4 py-3.5 ${
-        destaque ? "border-terracota/25 bg-terracota-lavagem" : "border-borda bg-superficie"
-      }`}
-    >
-      <Icone
-        size={17}
-        strokeWidth={1.9}
-        className={destaque ? "text-terracota" : "text-suave-2"}
-      />
-      <div className="mt-2 font-titulo text-[23px] font-bold leading-none tabular-nums tracking-[-0.02em]">
-        {valor?.toLocaleString("pt-BR") ?? "—"}
-      </div>
-      <div className="mt-1 text-[12.5px] text-suave">{rotulo}</div>
-    </div>
-  );
-}
-
 function CartaoEstante({ item }: { item: ItemEstante }) {
   const emLeitura = item.status === "LENDO" && item.currentPage != null && item.totalPages;
 
   return (
     <article className="group relative">
-      <Link
-        href={`/books/${item.book.id}`}
-        aria-label={`Abrir ${item.book.title}`}
-        className="block rounded-[10px] transition duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-terracota group-hover:-translate-y-1"
-      >
-        <CapaLivro
-          id={item.book.id}
-          titulo={item.book.title}
-          autor={item.book.author}
-          urlCapa={item.book.coverUrl}
-        />
-      </Link>
-
-      <span
-        className={`pointer-events-none absolute left-0 top-3 rounded-r-md py-1 pl-2 pr-2.5 text-[10.5px] font-bold uppercase tracking-[0.04em] text-white shadow-[0_2px_6px_rgba(60,45,20,0.35)] ${FITA_STATUS[item.status]}`}
-      >
-        {ROTULO_STATUS[item.status]}
-      </span>
-
-      {item.favorite && (
-        <span
-          role="img"
-          aria-label="Favorito"
-          className="pointer-events-none absolute bottom-2 left-2 flex h-[26px] w-[26px] items-center justify-center rounded-full bg-superficie/92 shadow-[0_2px_8px_rgba(60,45,20,0.28)]"
+      {/* Capa, Fita e Coracao Sobem Juntos no Hover */}
+      <div className="relative transition duration-300 group-hover:-translate-y-1">
+        <Link
+          href={`/books/${item.book.id}`}
+          aria-label={`Abrir ${item.book.title}`}
+          className="block rounded-[10px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-terracota"
         >
-          <Heart size={13} className="fill-terracota text-terracota" />
+          <CapaLivro
+            id={item.book.id}
+            titulo={item.book.title}
+            autor={item.book.author}
+            urlCapa={item.book.coverUrl}
+          />
+        </Link>
+
+        <span
+          className={`pointer-events-none absolute left-0 top-3 rounded-r-md py-1 pl-2 pr-2.5 text-[10.5px] font-bold uppercase tracking-[0.04em] text-white shadow-[0_2px_6px_rgba(60,45,20,0.35)] ${FITA_STATUS[item.status]}`}
+        >
+          {ROTULO_STATUS[item.status]}
         </span>
-      )}
+
+        {item.favorite && (
+          <span
+            role="img"
+            aria-label="Favorito"
+            className="pointer-events-none absolute bottom-2 left-2 flex h-[26px] w-[26px] items-center justify-center rounded-full bg-superficie/92 shadow-[0_2px_8px_rgba(60,45,20,0.28)]"
+          >
+            <Heart size={13} className="fill-terracota text-terracota" />
+          </span>
+        )}
+      </div>
 
       <div className="mt-3">
         <h3 className="line-clamp-2 font-serif text-[16px] font-medium leading-snug text-pretty">

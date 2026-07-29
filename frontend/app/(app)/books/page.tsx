@@ -6,12 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LayoutGrid, List, Plus, Search } from "lucide-react";
 import { listarLivros, removerLivro } from "@/lib/livros";
-import { listarCategorias } from "@/lib/categorias";
 import { useAlerta } from "@/lib/alerta";
 import { useConta } from "@/lib/conta";
 import type { LivroResumo } from "@/lib/tipos";
 import CampoFormulario from "@/components/CampoFormulario";
 import CartaoLivro from "@/components/livro/CartaoLivro";
+import FiltroCategorias from "@/components/livro/FiltroCategorias";
 import ListaLivros from "@/components/livro/ListaLivros";
 import Chip from "@/components/ui/Chip";
 import Painel from "@/components/ui/Painel";
@@ -37,27 +37,53 @@ function Acervo() {
   const queryClient = useQueryClient();
   const alerta = useAlerta();
   const { data: conta } = useConta();
-  const categoriaInicial = useSearchParams().get("categoria");
+  const parametros = useSearchParams();
 
-  const [busca, setBusca] = useState("");
-  const [buscaAtiva, setBuscaAtiva] = useState("");
-  const [pagina, setPagina] = useState(0);
-  const [layout, setLayout] = useState<"grade" | "lista">("grade");
-  const [sortCampo, setSortCampo] = useState("title");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
-  const [categoria, setCategoria] = useState<string | null>(categoriaInicial);
+  // O Estado Nasce da URL: o Link Fica Compartilhavel e o Voltar Funciona
+  const [ordenacaoInicial] = useState(() => parametros.get("sort") ?? "title,asc");
+  const [busca, setBusca] = useState(() => parametros.get("title") ?? "");
+  const [buscaAtiva, setBuscaAtiva] = useState(() => parametros.get("title") ?? "");
+  const [pagina, setPagina] = useState(() => Number(parametros.get("page") ?? 0));
+  const [layout, setLayout] = useState<"grade" | "lista">(
+    () => (parametros.get("layout") === "lista" ? "lista" : "grade"),
+  );
+  const [sortCampo, setSortCampo] = useState(() => ordenacaoInicial.split(",")[0]);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">(
+    () => (ordenacaoInicial.split(",")[1] === "desc" ? "desc" : "asc"),
+  );
+  const [categoria, setCategoria] = useState<string | null>(
+    () => parametros.get("categoria") ?? null,
+  );
   const [alvoExclusao, setAlvoExclusao] = useState<LivroResumo | null>(null);
 
   // Debounce da Busca
   useEffect(() => {
     const timer = setTimeout(() => {
-      setBuscaAtiva(busca.trim());
-      setPagina(0);
+      setBuscaAtiva((anterior) => {
+        const limpo = busca.trim();
+        if (limpo !== anterior) setPagina(0);
+        return limpo;
+      });
     }, 400);
     return () => clearTimeout(timer);
   }, [busca]);
 
   const sort = `${sortCampo},${sortDir}`;
+
+  // Espelha o Estado na URL sem Empilhar Historico a Cada Tecla
+  useEffect(() => {
+    const query = new URLSearchParams();
+    if (buscaAtiva) query.set("title", buscaAtiva);
+    if (categoria) query.set("categoria", categoria);
+    if (sort !== "title,asc") query.set("sort", sort);
+    if (pagina > 0) query.set("page", String(pagina));
+    if (layout !== "grade") query.set("layout", layout);
+
+    const destino = query.toString() ? `/books?${query}` : "/books";
+    if (destino !== window.location.pathname + window.location.search) {
+      router.replace(destino, { scroll: false });
+    }
+  }, [router, buscaAtiva, categoria, sort, pagina, layout]);
   const { data, isPending, isError } = useQuery({
     queryKey: ["livros", buscaAtiva, categoria, pagina, sort],
     queryFn: () =>
@@ -71,11 +97,6 @@ function Acervo() {
     placeholderData: keepPreviousData,
   });
 
-  const { data: categorias = [] } = useQuery({
-    queryKey: ["categorias"],
-    queryFn: listarCategorias,
-    staleTime: 10 * 60 * 1000,
-  });
 
   const exclusao = useMutation({
     mutationFn: (id: number) => removerLivro(id),
@@ -152,36 +173,13 @@ function Acervo() {
         </div>
       </header>
 
-      {/* Categorias Reais do Acervo */}
-      {categorias.length > 0 && (
-        <div className="-mx-5 mb-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
-          <div className="flex gap-2 pb-1">
-            <Chip
-              tom="contorno"
-              ativo={categoria === null}
-              onClick={() => {
-                setCategoria(null);
-                setPagina(0);
-              }}
-            >
-              Todas as categorias
-            </Chip>
-            {categorias.map((item) => (
-              <Chip
-                key={item.slug}
-                tom="contorno"
-                ativo={categoria === item.slug}
-                onClick={() => {
-                  setCategoria(categoria === item.slug ? null : item.slug);
-                  setPagina(0);
-                }}
-              >
-                {item.name}
-              </Chip>
-            ))}
-          </div>
-        </div>
-      )}
+      <FiltroCategorias
+        selecionada={categoria}
+        aoSelecionar={(slug) => {
+          setCategoria(slug);
+          setPagina(0);
+        }}
+      />
 
       {/* Busca e Ordenação */}
       <div className="mb-6 flex flex-wrap items-center gap-3">

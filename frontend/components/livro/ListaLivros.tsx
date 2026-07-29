@@ -2,8 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import type { LivroResumo } from "@/lib/tipos";
+import { Heart } from "lucide-react";
+import { FITA_STATUS, ROTULO_STATUS } from "@/lib/rotulos";
 import CapaLivro from "./CapaLivro";
-import EstrelasNota from "@/components/ui/EstrelasNota";
+import NotasDoLivro from "./NotasDoLivro";
 import BotaoAcao from "@/components/ui/BotaoAcao";
 
 const COLUNAS = [
@@ -80,40 +82,60 @@ export default function ListaLivros({
               onClick={() => router.push(`/books/${livro.id}`)}
               className="cursor-pointer border-b border-borda transition last:border-b-0 hover:bg-superficie-2"
             >
-              <td className="px-5 py-3">
+              {/* max-w-0 e o que Faz o truncate Valer Dentro de Tabela */}
+              <td className="w-full max-w-0 px-5 py-3">
                 <div className="flex min-w-0 items-center gap-3.5">
-                  <div className="w-[38px] shrink-0">
+                  <div className="relative w-[38px] shrink-0">
                     <CapaLivro
                       id={livro.id}
                       titulo={livro.title}
                       urlCapa={livro.coverUrl}
                       arredondamento="rounded-[5px]"
                     />
+                    {livro.favorite && (
+                      <span
+                        role="img"
+                        aria-label="Favorito"
+                        className="absolute -bottom-1 -right-1 flex h-[15px] w-[15px] items-center justify-center rounded-full bg-superficie shadow-[0_1px_4px_rgba(60,45,20,0.3)]"
+                      >
+                        <Heart size={9} className="fill-terracota text-terracota" />
+                      </span>
+                    )}
                   </div>
+
                   <div className="min-w-0">
-                    <span className="block truncate font-serif text-[16px] font-medium">
-                      {livro.title}
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="truncate font-serif text-[16px] font-medium">
+                        {livro.title}
+                      </span>
+                      {livro.shelfStatus && (
+                        <span
+                          className={`shrink-0 rounded-md px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.04em] text-white ${FITA_STATUS[livro.shelfStatus]}`}
+                        >
+                          {ROTULO_STATUS[livro.shelfStatus]}
+                        </span>
+                      )}
                     </span>
-                    <span className="truncate text-[12.5px] text-suave-2 sm:hidden">
+                    <span className="block truncate text-[12.5px] text-suave-2 sm:hidden">
                       {livro.author}
                     </span>
                   </div>
                 </div>
               </td>
 
-              <td className="hidden px-5 py-3 text-[14px] text-tinta-2 sm:table-cell">
-                <span className="line-clamp-1">{livro.author}</span>
+              <td className="hidden max-w-0 px-5 py-3 text-[14px] text-tinta-2 sm:table-cell sm:w-[24%]">
+                <span className="block truncate">{livro.author}</span>
               </td>
 
-              <td className="hidden px-5 py-3 text-[14px] tabular-nums text-tinta-2 sm:table-cell">
+              <td className="hidden w-[80px] whitespace-nowrap px-5 py-3 text-[14px] tabular-nums text-tinta-2 sm:table-cell">
                 {livro.year ?? "—"}
               </td>
 
-              <td className="hidden w-[180px] px-5 py-3 lg:table-cell">
-                <Avaliacao nota={livro.averageRating} total={livro.ratingsCount} />
+              <td className="hidden w-[190px] px-5 py-3 lg:table-cell">
+                <NotasDoLivro livro={livro} compacto />
               </td>
 
-              <td className="px-5 py-3">
+              <td className="w-[96px] whitespace-nowrap px-5 py-3">
                 {podeGerenciar && (
                   <div className="flex justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
                     <BotaoAcao tipo="editar" onClick={() => aoEditar(livro.id)} />
@@ -125,23 +147,6 @@ export default function ListaLivros({
           ))}
         </tbody>
       </table>
-    </div>
-  );
-}
-
-// Nota Média Vinda do Google Books
-function Avaliacao({ nota, total }: { nota?: number | null; total?: number | null }) {
-  if (!nota) {
-    return <span className="text-[13px] text-suave-2">—</span>;
-  }
-
-  return (
-    <div className="flex items-center gap-2">
-      <EstrelasNota nota={Math.round(nota)} tamanho={13} />
-      <span className="text-[12px] text-suave-2">
-        {nota.toFixed(1)}
-        {total ? ` (${total})` : ""}
-      </span>
     </div>
   );
 }

@@ -34,9 +34,11 @@ final class OrdenacaoLivro {
             return paginacao;
         }
 
+        // nullsLast: sem isso o Postgres joga os Livros sem Nota para o Topo do "Melhor Avaliados"
         List<Sort.Order> ordens = paginacao.getSort().stream()
-                .map(ordem -> ordem.withProperty(
-                        CAMPOS.getOrDefault(ordem.getProperty(), ordem.getProperty())))
+                .map(ordem -> ordem
+                        .withProperty(CAMPOS.getOrDefault(ordem.getProperty(), ordem.getProperty()))
+                        .nullsLast())
                 .toList();
 
         return PageRequest.of(paginacao.getPageNumber(), paginacao.getPageSize(), Sort.by(ordens));

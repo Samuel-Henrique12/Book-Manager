@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Check, Loader2, Lock, Mail, User } from "lucide-react";
+import { Check, Coffee, Loader2, Lock, Mail, User } from "lucide-react";
 import { entrar, registrar } from "@/lib/contas";
 import { ApiError } from "@/lib/api";
 import { useAplicarErro } from "@/lib/erros";
 import CampoFormulario from "@/components/CampoFormulario";
+import Aviso from "@/components/ui/Aviso";
 import Cabecalho, { CLASSE_BOTAO } from "@/components/login/Cabecalho";
 import AvisoConfirmacao from "@/components/login/AvisoConfirmacao";
 import ModalBoasVindas from "@/components/login/ModalBoasVindas";
@@ -117,6 +118,10 @@ function FormularioLogin({
 
   return (
     <>
+      <Aviso tom="atencao" className="mb-5" icone={<Coffee size={15} strokeWidth={1.9} />}>
+        Servidor gratuito: a primeira entrada pode levar até um minuto enquanto ele acorda.
+      </Aviso>
+
       <Cabecalho
         linha1="Grandes histórias"
         linha2="sempre com você"

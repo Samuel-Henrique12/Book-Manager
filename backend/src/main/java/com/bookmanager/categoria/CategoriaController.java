@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 // Endpoints de Categorias
@@ -16,9 +17,10 @@ public class CategoriaController {
 
     private final CategoriaService categoriaService;
 
-    // Endpoint para Listar Categorias com Livros
+    // Endpoint para Listar Categorias com Volume Mínimo de Livros
     @GetMapping
-    public ResponseEntity<List<CategoriaRespostaDTO>> listar() {
-        return ResponseEntity.ok(categoriaService.listar());
+    public ResponseEntity<List<CategoriaRespostaDTO>> listar(
+            @RequestParam(required = false, defaultValue = "1") long min) {
+        return ResponseEntity.ok(categoriaService.listar(min));
     }
 }

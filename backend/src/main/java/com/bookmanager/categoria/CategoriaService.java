@@ -17,12 +17,18 @@ public class CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
 
-    // Listar Categorias que Possuem Livros
+    // Categorias com Pelo Menos N Livros
     @Transactional(readOnly = true)
-    public List<CategoriaRespostaDTO> listar() {
-        return categoriaRepository.listarComLivros().stream()
-                .map(categoria -> new CategoriaRespostaDTO(
-                        categoria.getId(), categoria.getNome(), categoria.getSlug()))
+    public List<CategoriaRespostaDTO> listar(long minimoDeLivros) {
+        return categoriaRepository.listarComLivros(Math.max(minimoDeLivros, 1)).stream()
+                .map(linha -> {
+                    Long id = ((Number) linha[0]).longValue();
+                    String nomeOriginal = (String) linha[1];
+                    String slug = (String) linha[2];
+                    long total = ((Number) linha[3]).longValue();
+                    return new CategoriaRespostaDTO(
+                            id, NomesDeCategoria.traduzir(slug, nomeOriginal), slug, total);
+                })
                 .toList();
     }
 
