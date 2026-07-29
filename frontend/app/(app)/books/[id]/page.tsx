@@ -9,11 +9,16 @@ import { obterLivro, removerLivro } from "@/lib/livros";
 import { useAlerta } from "@/lib/alerta";
 import { useConta } from "@/lib/conta";
 import type { Livro } from "@/lib/tipos";
+import { obterResumoAvaliacoes } from "@/lib/avaliacoes";
 import CapaLivro from "@/components/livro/CapaLivro";
 import EstrelasNota from "@/components/ui/EstrelasNota";
 import Chip from "@/components/ui/Chip";
-import Painel from "@/components/ui/Painel";
+import Painel, { TituloSecao } from "@/components/ui/Painel";
 import ModalConfirmacao from "@/components/ModalConfirmacao";
+import DistribuicaoNotas from "@/components/livro/DistribuicaoNotas";
+import MinhaAvaliacao from "@/components/livro/MinhaAvaliacao";
+import ListaResenhas from "@/components/livro/ListaResenhas";
+import ConversaLivro from "@/components/livro/ConversaLivro";
 
 // Página de Detalhe do Livro
 export default function PaginaLivro() {
@@ -28,6 +33,12 @@ export default function PaginaLivro() {
   const { data: livro, isPending, isError } = useQuery({
     queryKey: ["livro", id],
     queryFn: () => obterLivro(id),
+    enabled: !Number.isNaN(id),
+  });
+
+  const { data: resumo } = useQuery({
+    queryKey: ["avaliacao", id, "resumo"],
+    queryFn: () => obterResumoAvaliacoes(id),
     enabled: !Number.isNaN(id),
   });
 
@@ -178,6 +189,32 @@ export default function PaginaLivro() {
           )}
         </div>
       </div>
+
+      {/* Avaliações da Comunidade */}
+      <section className="mt-12">
+        <TituloSecao>Avaliações dos leitores</TituloSecao>
+        <div className="rounded-2xl border border-borda bg-superficie p-5 sm:p-6">
+          {resumo ? (
+            <DistribuicaoNotas resumo={resumo} />
+          ) : (
+            <div className="h-[92px]" />
+          )}
+        </div>
+
+        <div className="mt-4">
+          <MinhaAvaliacao livroId={id} />
+        </div>
+
+        <div className="mt-6">
+          <ListaResenhas livroId={id} />
+        </div>
+      </section>
+
+      {/* Conversa entre Leitores */}
+      <section className="mt-12">
+        <TituloSecao>Comentários</TituloSecao>
+        <ConversaLivro livroId={id} />
+      </section>
 
       <ModalConfirmacao
         aberto={confirmando}

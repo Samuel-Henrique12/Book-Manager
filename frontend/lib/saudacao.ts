@@ -1,7 +1,4 @@
 // Saudação da Home Conforme o Horário
-// O servidor não sabe a hora do usuário. Para não renderizar "Bom dia" e
-// corrigir para "Boa noite" na hidratação, o snapshot do servidor é o texto
-// neutro — o horário só entra depois que o componente monta no cliente.
 
 export type Periodo = "neutro" | "madrugada" | "manha" | "tarde" | "noite";
 

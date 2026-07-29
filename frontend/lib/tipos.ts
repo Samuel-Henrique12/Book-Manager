@@ -47,6 +47,40 @@ export type LivroResumo = Pick<
   | "categories"
 >;
 
+// Avaliação (nota 1 ~ 5 Com Resenha Opcional | Uma Por User <-> Livro)
+export interface Avaliacao {
+  id: number;
+  readerName: string;
+  rating: number;
+  review?: string | null;
+  spoiler: boolean;
+  mine: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface FatiaNota {
+  rating: number;
+  count: number;
+  percentage: number;
+}
+
+export interface ResumoAvaliacoes {
+  average?: number | null;
+  total: number;
+  distribution: FatiaNota[];
+}
+
+// Comentário: Conversa Livre no Livro
+export interface Comentario {
+  id: number;
+  readerName: string;
+  text: string;
+  spoiler: boolean;
+  mine: boolean;
+  createdAt: string;
+}
+
 // Acompanhamento da Importação do Google Books
 export interface ProgressoImportacao {
   emAndamento: boolean;
