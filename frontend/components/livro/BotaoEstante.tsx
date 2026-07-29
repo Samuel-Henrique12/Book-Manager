@@ -156,6 +156,37 @@ export default function BotaoEstante({
         })}
       </div>
 
+      {/* Livro Lido sem Total Conhecido Nao Entraria no Paginometro */}
+      {vaga?.status === "LIDO" && !totalDoLivro && (
+        <div className="mt-5 rounded-xl border border-borda bg-superficie-2 p-4">
+          <label className="block text-[12.5px] text-suave">
+            Quantas páginas tem o livro?
+            <span className="mt-0.5 block text-[11.5px] text-suave-2">
+              Sem esse número ele não entra na sua contagem de páginas lidas.
+            </span>
+            <span className="mt-1.5 flex gap-2">
+              <input
+                value={total}
+                onChange={(evento) => setTotal(evento.target.value.replace(/\D/g, ""))}
+                inputMode="numeric"
+                maxLength={5}
+                placeholder="Ex.: 320"
+                className="h-[38px] min-w-0 flex-1 rounded-lg border border-borda bg-superficie px-3 text-[14px] tabular-nums text-tinta outline-none focus:border-terracota"
+              />
+              <button
+                type="button"
+                onClick={() => enviar("LIDO", { pagina: null })}
+                disabled={salvar.isPending || !total}
+                className="flex h-[38px] items-center gap-1.5 rounded-lg bg-terracota px-4 text-[13.5px] font-semibold text-white transition hover:bg-terracota-escuro disabled:opacity-60"
+              >
+                {salvar.isPending && <Loader2 size={14} className="animate-spin" />}
+                Salvar
+              </button>
+            </span>
+          </label>
+        </div>
+      )}
+
       {/* Progresso: Só Durante a Leitura */}
       {vaga?.status === "LENDO" && (
         <div className="mt-5 rounded-xl border border-borda bg-superficie-2 p-4">

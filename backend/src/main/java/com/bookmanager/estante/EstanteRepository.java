@@ -27,11 +27,19 @@ public interface EstanteRepository extends JpaRepository<Estante, Long> {
     @Query("SELECT e.status, COUNT(e) FROM Estante e WHERE e.usuario.id = :usuarioId GROUP BY e.status")
     List<Object[]> contarPorStatus(@Param("usuarioId") Long usuarioId);
 
-    // Paginometro: Livro Lido Conta o Total; o do Google Tem Prioridade
+    // Paginometro: Livro Lido Conta Integral e o Que Esta Sendo Lido Conta o Progresso.
+    // Mesma Regra de Estante.paginasLidas(); o Total do Google Tem Prioridade.
     @Query("""
-            SELECT COALESCE(SUM(COALESCE(e.livro.totalPaginas, e.totalPaginas)), 0)
+            SELECT COALESCE(SUM(
+                     CASE
+                       WHEN e.status = com.bookmanager.estante.StatusLeitura.LIDO
+                            THEN COALESCE(e.livro.totalPaginas, e.totalPaginas, 0)
+                       WHEN e.status = com.bookmanager.estante.StatusLeitura.LENDO
+                            THEN COALESCE(e.paginaAtual, 0)
+                       ELSE 0
+                     END), 0)
               FROM Estante e
-             WHERE e.usuario.id = :usuarioId AND e.status = com.bookmanager.estante.StatusLeitura.LIDO
+             WHERE e.usuario.id = :usuarioId
             """)
     long somarPaginasLidas(@Param("usuarioId") Long usuarioId);
 }
