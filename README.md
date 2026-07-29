@@ -385,3 +385,80 @@ Cada módulo tem seu próprio README: **[`backend/README.md`](./backend/README.m
 ## 🌐 Deploy
 
 Deploy gratuito, sem cartão, com **Vercel** (frontend) + **Render** (API) + **Neon** (banco), com auto-deploy a cada push. Passo a passo completo em **[`DEPLOY.md`](./DEPLOY.md)**.
+
+---
+
+## 📸 Telas do Sistema
+
+### 🔐 Autenticação
+
+**Login**
+<br>
+<img src="./docs/telas/login.png" width="800" alt="Tela de Login">
+
+**Criar Conta**
+<br>
+<img src="./docs/telas/criar-conta.png" width="800" alt="Tela de Criar Conta">
+
+**Esqueceu a Senha**
+<br>
+<img src="./docs/telas/esqueceu-senha.png" width="800" alt="Tela de Esqueceu a Senha">
+
+
+### 🧭 Navegação e Acervo
+
+**Início**
+<br>
+<img src="./docs/telas/inicio.png" width="800" alt="Tela Inicial - Parte 1">
+<br>
+<img src="./docs/telas/inicio-2.png" width="800" alt="Tela Inicial - Parte 2">
+<br>
+<img src="./docs/telas/inicio-3.png" width="800" alt="Tela Inicial - Parte 3">
+
+**Acervo**
+<br>
+<img src="./docs/telas/acervo-grade.png" width="800" alt="Acervo em Grade">
+<br>
+<img src="./docs/telas/acervo-lista.png" width="800" alt="Acervo em Lista">
+
+
+### 📖 Área do Leitor
+
+**Detalhes do Livro (Estante, Avaliações e Comentários)**
+<br>
+<img src="./docs/telas/detalhes-livro.png" width="800" alt="Detalhes do Livro - Visão Geral">
+<br>
+<img src="./docs/telas/detalhes-livro-2.png" width="800" alt="Detalhes do Livro - Interações">
+<br>
+<img src="./docs/telas/detalhes-livro-3.png" width="800" alt="Detalhes do Livro - Mais informações">
+<br>
+<img src="./docs/telas/detalhes-livro-4.png" width="800" alt="Detalhes do Livro - Comentários">
+
+**Minha Estante**
+<br>
+<img src="./docs/telas/minha-estante.png" width="800" alt="Minha Estante">
+
+**Minha Conta**
+<br>
+<img src="./docs/telas/minha-conta.png" width="800" alt="Minha Conta - Parte 1">
+<br>
+<img src="./docs/telas/minha-conta-2.png" width="800" alt="Minha Conta - Parte 2">
+
+
+### ⚙️ Administração
+
+**Usuários**
+<br>
+<img src="./docs/telas/usuarios.png" width="800" alt="Gestão de Usuários">
+
+**Novo Livro**
+<br>
+<img src="./docs/telas/novo-livro.png" width="800" alt="Novo Livro - Parte 1">
+<br>
+<img src="./docs/telas/novo-livro2.png" width="800" alt="Novo Livro - Parte 2">
+
+**Editar Livro**
+<br>
+<img src="./docs/telas/editar-livro.png" width="800" alt="Editar Livro - Parte 1">
+<br>
+<img src="./docs/telas/editar-livro-2.png" width="800" alt="Editar Livro - Parte 2">
