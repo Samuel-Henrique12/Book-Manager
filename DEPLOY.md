@@ -60,8 +60,8 @@ O repositório já traz um **`render.yaml`** (Blueprint) que configura o serviç
    - `GOOGLE_BOOKS_API_KEY` → passo 6
    - `JWT_SECRET` já é gerado automaticamente; `JWT_EXPIRACAO` (`PT8H`), `EMAIL_PROVEDOR` (`brevo`), os defaults do Google Books e o `JAVA_TOOL_OPTIONS` já vêm definidos no Blueprint.
 4. **Create** → aguarde o primeiro build (o Render compila o `Dockerfile`; leva alguns minutos).
-5. Ao terminar, copie a **URL pública** da API (ex.: `https://book-manager-api.onrender.com`).
-   - Teste: abra `https://<sua-api>.onrender.com/swagger-ui.html`.
+5. Ao terminar, copie a **URL pública** da API (ex.: `https://book-manager-api-e8gt.onrender.com`).
+   - Teste: abra `https://book-manager-api-e8gt.onrender.com/swagger-ui.html`.
 
 > No 1º boot, o **Flyway cria as tabelas** no banco Neon automaticamente (é o banco dedicado da aplicação — seguro).
 
@@ -74,14 +74,14 @@ O repositório já traz um **`render.yaml`** (Blueprint) que configura o serviç
    - **Root Directory:** `frontend`
    - **Framework Preset:** Next.js (detectado automaticamente)
    - **Environment Variables:** `NEXT_PUBLIC_API_URL` = a URL da API do Render (passo 2.5)
-3. **Deploy** → aguarde e copie a **URL pública** do frontend (ex.: `https://book-manager.vercel.app`).
+3. **Deploy** → aguarde e copie a **URL pública** do frontend (ex.: `https://book-manager-five-kappa.vercel.app`).
 
 ---
 
 ## 4. Conectar frontend ↔ API (CORS)
 
 1. Volte ao **Render** → serviço `book-manager-api` → **Environment**.
-2. Ajuste `CORS_ORIGENS` = a URL da Vercel (ex.: `https://book-manager.vercel.app`, **sem barra no final**).
+2. Ajuste `CORS_ORIGENS` = a URL da Vercel (ex.: `https://book-manager-five-kappa.vercel.app`, **sem barra no final**).
 3. Salve → o Render redeploya sozinho.
 
 ---
@@ -186,12 +186,12 @@ Para trocar a branch que dispara o deploy: Render → _Settings → Branch_; Ver
 | `DB_PASSWORD` | `••••••` | Neon |
 | `JWT_SECRET` | _(gerado pelo Render)_ | Blueprint |
 | `JWT_EXPIRACAO` | `PT8H` | Blueprint |
-| `CORS_ORIGENS` | `https://book-manager.vercel.app` | Vercel (passo 4) |
+| `CORS_ORIGENS` | `https://book-manager-five-kappa.vercel.app` | Vercel (passo 4) |
 | `EMAIL_PROVEDOR` | `brevo` | Blueprint |
 | `MAIL_API_KEY` | `xkeysib-••••••` | Brevo (passo 5) |
 | `MAIL_FROM` | `seu-remetente-verificado@gmail.com` | Brevo |
 | `MAIL_FROM_NOME` | `Book Manager` | Blueprint |
-| `APP_URL_BASE` | `https://book-manager.vercel.app` | Vercel (passo 5) |
+| `APP_URL_BASE` | `https://book-manager-five-kappa.vercel.app` | Vercel (passo 5) |
 | `GOOGLE_BOOKS_API_KEY` | `AIza••••••` | Google Cloud (passo 6) |
 | `GOOGLE_BOOKS_IDIOMA` | `pt` | Blueprint |
 | `GOOGLE_BOOKS_MAX_POR_TEMA` | `200` | Blueprint |
@@ -204,4 +204,4 @@ Para trocar a branch que dispara o deploy: Render → _Settings → Branch_; Ver
 **Vercel (frontend):**
 | Variável | Exemplo |
 |---|---|
-| `NEXT_PUBLIC_API_URL` | `https://book-manager-api.onrender.com` |
+| `NEXT_PUBLIC_API_URL` | `https://book-manager-api-e8gt.onrender.com` |
