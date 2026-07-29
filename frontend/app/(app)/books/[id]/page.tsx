@@ -15,6 +15,7 @@ import EstrelasNota from "@/components/ui/EstrelasNota";
 import Chip from "@/components/ui/Chip";
 import Painel, { TituloSecao } from "@/components/ui/Painel";
 import ModalConfirmacao from "@/components/ModalConfirmacao";
+import BotaoEstante from "@/components/livro/BotaoEstante";
 import DistribuicaoNotas from "@/components/livro/DistribuicaoNotas";
 import MinhaAvaliacao from "@/components/livro/MinhaAvaliacao";
 import ListaResenhas from "@/components/livro/ListaResenhas";
@@ -104,6 +105,8 @@ export default function PaginaLivro() {
           />
 
           <FichaTecnica livro={livro} />
+
+          <BotaoEstante livroId={id} totalDoLivro={livro.pageCount} />
 
           {podeGerenciar && (
             <div className="mt-5 flex gap-2">

@@ -45,7 +45,33 @@ export type LivroResumo = Pick<
   | "averageRating"
   | "ratingsCount"
   | "categories"
->;
+> & {
+  // Marcação Pessoal de Quem Está Consultando
+  shelfStatus?: StatusLeitura | null;
+  favorite?: boolean | null;
+};
+
+// Vaga do Livro na Estante do Leitor
+export interface ItemEstante {
+  id: number;
+  book: LivroResumo;
+  status: StatusLeitura;
+  favorite: boolean;
+  currentPage?: number | null;
+  totalPages?: number | null;
+  progress?: number | null;
+  updatedAt: string;
+}
+
+export interface ResumoEstante {
+  wantToRead: number;
+  reading: number;
+  read: number;
+  abandoned: number;
+  favorites: number;
+  total: number;
+  pagesRead: number;
+}
 
 // Avaliação (nota 1 ~ 5 Com Resenha Opcional | Uma Por User <-> Livro)
 export interface Avaliacao {

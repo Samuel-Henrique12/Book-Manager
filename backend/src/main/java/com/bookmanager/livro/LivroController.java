@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,9 +36,10 @@ public class LivroController {
     public ResponseEntity<RespostaPaginadaDTO<LivroResumoDTO>> listar(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String category,
+            @AuthenticationPrincipal UserDetails autenticado,
             @PageableDefault(size = 10, sort = "title") Pageable paginacao) {
-        return ResponseEntity.ok(
-                livroService.listar(title, category, OrdenacaoLivro.traduzir(paginacao)));
+        return ResponseEntity.ok(livroService.listar(title, category,
+                autenticado.getUsername(), OrdenacaoLivro.traduzir(paginacao)));
     }
 
     // Endpoint para Criar Novo Livro

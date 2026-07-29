@@ -28,6 +28,7 @@ export const config = {
   matcher: [
     "/",
     "/books/:path*",
+    "/estante",
     "/conta",
     "/admin/:path*",
     "/login",

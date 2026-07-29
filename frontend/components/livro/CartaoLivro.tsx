@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { Heart } from "lucide-react";
 import type { LivroResumo } from "@/lib/tipos";
+import { FITA_STATUS, ROTULO_STATUS } from "@/lib/rotulos";
 import CapaLivro from "./CapaLivro";
 import EstrelasNota from "@/components/ui/EstrelasNota";
 import BotaoAcao from "@/components/ui/BotaoAcao";
@@ -34,6 +36,26 @@ export default function CartaoLivro({
           urlCapa={livro.coverUrl}
         />
       </Link>
+
+      {/* Fita de Status Sobre a Capa */}
+      {livro.shelfStatus && (
+        <span
+          title={ROTULO_STATUS[livro.shelfStatus]}
+          className={`pointer-events-none absolute left-0 top-3 rounded-r-md py-1 pl-2 pr-2.5 text-[10.5px] font-bold uppercase tracking-[0.04em] text-white shadow-[0_2px_6px_rgba(60,45,20,0.35)] ${FITA_STATUS[livro.shelfStatus]}`}
+        >
+          {ROTULO_STATUS[livro.shelfStatus]}
+        </span>
+      )}
+
+      {livro.favorite && (
+        <span
+          role="img"
+          aria-label="Favorito"
+          className="pointer-events-none absolute bottom-2 left-2 flex h-[26px] w-[26px] items-center justify-center rounded-full bg-superficie/92 shadow-[0_2px_8px_rgba(60,45,20,0.28)]"
+        >
+          <Heart size={13} className="fill-terracota text-terracota" />
+        </span>
+      )}
 
       {/* Ações ao Passar o Mouse — Somente Administradores */}
       {podeGerenciar && (

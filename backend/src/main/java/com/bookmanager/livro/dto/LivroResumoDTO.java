@@ -1,6 +1,7 @@
 package com.bookmanager.livro.dto;
 
 import com.bookmanager.categoria.dto.CategoriaRespostaDTO;
+import com.bookmanager.estante.StatusLeitura;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.util.List;
@@ -15,6 +16,15 @@ public record LivroResumoDTO(
         @JsonProperty("coverUrl") String urlCapa,
         @JsonProperty("averageRating") BigDecimal mediaAvaliacao,
         @JsonProperty("ratingsCount") Integer totalAvaliacoes,
-        @JsonProperty("categories") List<CategoriaRespostaDTO> categorias
+        @JsonProperty("categories") List<CategoriaRespostaDTO> categorias,
+        // Situacao do Livro na Estante de Quem Esta Consultando
+        @JsonProperty("shelfStatus") StatusLeitura statusEstante,
+        @JsonProperty("favorite") Boolean favorito
 ) {
+
+    // Copia o Resumo Acrescentando a Marcacao Pessoal
+    public LivroResumoDTO comEstante(StatusLeitura status, Boolean marcadoFavorito) {
+        return new LivroResumoDTO(id, titulo, autor, ano, descricao, urlCapa, mediaAvaliacao,
+                totalAvaliacoes, categorias, status, marcadoFavorito);
+    }
 }

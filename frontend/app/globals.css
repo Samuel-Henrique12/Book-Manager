@@ -27,6 +27,10 @@
   --color-erro-lavagem: #fbeee9;
   --color-verde: #4e9e76;
 
+  /* Fitas de Status na Capa */
+  --color-amarelo: #d9a520;
+  --color-amarelo-escuro: #8a6608;
+
   /* Painel Escuro */
   --color-painel: #1b1a18;
   --color-painel-texto: #e9e4d9;

@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
-import { Home, Library, LogOut, Plus, Shield } from "lucide-react";
+import { BookMarked, Home, Library, LogOut, Plus, Shield } from "lucide-react";
 import { limparSessao, obterEmail, obterNome } from "@/lib/auth";
 import { useConta } from "@/lib/conta";
 import Logotipo, { SimboloLivro } from "@/components/Logotipo";
 
 export const NAVEGACAO = [
   { href: "/", rotulo: "Início", Icone: Home },
-  { href: "/books", rotulo: "Minha estante", Icone: Library },
+  { href: "/books", rotulo: "Acervo", Icone: Library },
+  { href: "/estante", rotulo: "Minha estante", Icone: BookMarked },
 ];
 
 // Item Exibido Apenas a Quem Pode Administrar

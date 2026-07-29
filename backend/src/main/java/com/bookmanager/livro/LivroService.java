@@ -2,9 +2,13 @@ package com.bookmanager.livro;
 
 import com.bookmanager.comum.excecao.RecursoNaoEncontradoException;
 import com.bookmanager.comum.paginacao.RespostaPaginadaDTO;
+import com.bookmanager.estante.Estante;
+import com.bookmanager.estante.EstanteService;
 import com.bookmanager.livro.dto.LivroRequestDTO;
 import com.bookmanager.livro.dto.LivroRespostaDTO;
 import com.bookmanager.livro.dto.LivroResumoDTO;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,14 +22,26 @@ public class LivroService {
 
     private final LivroRepository livroRepository;
     private final LivroMapper livroMapper;
+    private final EstanteService estanteService;
 
     // Listar Livros com Filtro por Título, Categoria e Paginação
     @Transactional(readOnly = true)
     public RespostaPaginadaDTO<LivroResumoDTO> listar(String titulo, String categoria,
-            Pageable paginacao) {
+            String email, Pageable paginacao) {
         Page<Livro> pagina = livroRepository.buscar(
                 curinga(titulo), categoria == null ? "" : categoria.trim(), paginacao);
-        return RespostaPaginadaDTO.de(pagina.map(livroMapper::paraResumo));
+
+        // Uma Consulta So Traz a Estante de Todos os Livros da Pagina
+        List<Long> ids = pagina.getContent().stream().map(Livro::getId).toList();
+        Map<Long, Estante> estantes = estanteService.porLivros(email, ids);
+
+        return RespostaPaginadaDTO.de(pagina.map(livro -> {
+            LivroResumoDTO resumo = livroMapper.paraResumo(livro);
+            Estante estante = estantes.get(livro.getId());
+            return estante == null
+                    ? resumo
+                    : resumo.comEstante(estante.getStatus(), estante.isFavorito());
+        }));
     }
 
     // Buscar Livro por ID
