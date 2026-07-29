@@ -1,21 +1,44 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldAlert } from "lucide-react";
 import { obterLivro } from "@/lib/livros";
+import { useConta } from "@/lib/conta";
+import Painel from "@/components/ui/Painel";
 import LivroForm from "@/components/LivroForm";
 
 // Component EditarLivro
 export default function EditarLivro() {
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
+  const { data: conta, isPending: carregandoConta } = useConta();
 
   const { data, isPending, isError } = useQuery({
     queryKey: ["livro", id],
     queryFn: () => obterLivro(id),
     enabled: !Number.isNaN(id),
   });
+
+  // Barrar API Pra Leitores
+  if (!carregandoConta && !conta?.podeAdministrar) {
+    return (
+      <Painel
+        icone={<ShieldAlert size={28} strokeWidth={1.7} />}
+        titulo="Edição restrita"
+        descricao="O acervo é compartilhado entre todos os leitores, por isso só administradores podem editar ou excluir livros."
+        acao={
+          <Link
+            href="/books"
+            className="rounded-xl border border-borda-forte px-5 py-3 text-[15px] font-semibold transition hover:bg-creme"
+          >
+            Voltar ao acervo
+          </Link>
+        }
+      />
+    );
+  }
 
   if (isPending) {
     return (

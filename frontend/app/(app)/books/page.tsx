@@ -8,6 +8,7 @@ import { LayoutGrid, List, Plus, Search } from "lucide-react";
 import { listarLivros, removerLivro } from "@/lib/livros";
 import { listarCategorias } from "@/lib/categorias";
 import { useAlerta } from "@/lib/alerta";
+import { useConta } from "@/lib/conta";
 import type { LivroResumo } from "@/lib/tipos";
 import CampoFormulario from "@/components/CampoFormulario";
 import CartaoLivro from "@/components/livro/CartaoLivro";
@@ -35,6 +36,7 @@ function Acervo() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const alerta = useAlerta();
+  const { data: conta } = useConta();
   const categoriaInicial = useSearchParams().get("categoria");
 
   const [busca, setBusca] = useState("");
@@ -92,6 +94,8 @@ function Acervo() {
   const total = data?.totalElements ?? 0;
   const totalPaginas = data?.totalPages ?? 1;
   const filtrando = Boolean(buscaAtiva) || categoria !== null;
+  // Acervo Compartilhado: Editar e Excluir Só pra Admin
+  const podeGerenciar = Boolean(conta?.podeAdministrar);
 
   function ordenarPor(campo: string) {
     if (sortCampo === campo) {
@@ -257,6 +261,7 @@ function Acervo() {
                 <CartaoLivro
                   key={livro.id}
                   livro={livro}
+                  podeGerenciar={podeGerenciar}
                   aoEditar={(id) => router.push(`/books/${id}/edit`)}
                   aoExcluir={setAlvoExclusao}
                 />
@@ -265,6 +270,7 @@ function Acervo() {
           ) : (
             <ListaLivros
               livros={livros}
+              podeGerenciar={podeGerenciar}
               sortCampo={sortCampo}
               sortDir={sortDir}
               aoOrdenar={ordenarPor}

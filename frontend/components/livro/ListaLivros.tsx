@@ -15,6 +15,7 @@ const COLUNAS = [
 // Lista Compacta de Livros
 export default function ListaLivros({
   livros,
+  podeGerenciar = false,
   sortCampo,
   sortDir,
   aoOrdenar,
@@ -22,6 +23,7 @@ export default function ListaLivros({
   aoExcluir,
 }: {
   livros: LivroResumo[];
+  podeGerenciar?: boolean;
   sortCampo: string;
   sortDir: "asc" | "desc";
   aoOrdenar: (campo: string) => void;
@@ -75,8 +77,10 @@ export default function ListaLivros({
           {livros.map((livro) => (
             <tr
               key={livro.id}
-              onClick={() => router.push(`/books/${livro.id}/edit`)}
-              className="cursor-pointer border-b border-borda transition last:border-b-0 hover:bg-superficie-2"
+              onClick={podeGerenciar ? () => router.push(`/books/${livro.id}/edit`) : undefined}
+              className={`border-b border-borda transition last:border-b-0 hover:bg-superficie-2 ${
+                podeGerenciar ? "cursor-pointer" : ""
+              }`}
             >
               <td className="px-5 py-3">
                 <div className="flex min-w-0 items-center gap-3.5">
@@ -112,10 +116,12 @@ export default function ListaLivros({
               </td>
 
               <td className="px-5 py-3">
-                <div className="flex justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-                  <BotaoAcao tipo="editar" onClick={() => aoEditar(livro.id)} />
-                  <BotaoAcao tipo="excluir" onClick={() => aoExcluir(livro)} />
-                </div>
+                {podeGerenciar && (
+                  <div className="flex justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <BotaoAcao tipo="editar" onClick={() => aoEditar(livro.id)} />
+                    <BotaoAcao tipo="excluir" onClick={() => aoExcluir(livro)} />
+                  </div>
+                )}
               </td>
             </tr>
           ))}
