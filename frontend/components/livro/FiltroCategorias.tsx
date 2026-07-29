@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { listarCategorias } from "@/lib/categorias";
 import Chip from "@/components/ui/Chip";
+import TrilhoRolavel from "@/components/ui/TrilhoRolavel";
 
 const DESTAQUE_MINIMO = 10;
 const VISIVEIS = 12;
@@ -20,19 +21,6 @@ export default function FiltroCategorias({
   const [aberto, setAberto] = useState(false);
   const [busca, setBusca] = useState("");
   const painelRef = useRef<HTMLDivElement>(null);
-  const trilhoRef = useRef<HTMLDivElement>(null);
-  const [temAntes, setTemAntes] = useState(false);
-  const [temDepois, setTemDepois] = useState(false);
-
-  // Substitui a Barra de Rolagem por Desvanecimento nas Bordas
-  const medirTrilho = useCallback(() => {
-    const trilho = trilhoRef.current;
-    if (!trilho) return;
-    const restante = trilho.scrollWidth - trilho.clientWidth - trilho.scrollLeft;
-    setTemAntes(trilho.scrollLeft > 4);
-    setTemDepois(restante > 4);
-  }, []);
-
   // As Maiores Ficam na Barra; a Lista Cheia So Carrega ao Abrir o Painel
   const { data: destaques = [] } = useQuery({
     queryKey: ["categorias", DESTAQUE_MINIMO],
@@ -68,12 +56,6 @@ export default function FiltroCategorias({
     };
   }, [aberto]);
 
-  useEffect(() => {
-    medirTrilho();
-    window.addEventListener("resize", medirTrilho);
-    return () => window.removeEventListener("resize", medirTrilho);
-  }, [medirTrilho, destaques.length, selecionada]);
-
   const filtradas = useMemo(() => {
     const termo = busca.trim().toLowerCase();
     if (!termo) return todas;
@@ -95,65 +77,44 @@ export default function FiltroCategorias({
 
   return (
     <div className="relative mb-5">
-      <div className="relative -mx-5 sm:mx-0">
-        {temAntes && (
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-papel to-transparent"
-          />
-        )}
-        {temDepois && (
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-papel to-transparent"
-          />
-        )}
+      <TrilhoRolavel>
+        <Chip tom="contorno" ativo={selecionada === null} onClick={() => aoSelecionar(null)}>
+          Todas
+        </Chip>
 
-        <div
-          ref={trilhoRef}
-          onScroll={medirTrilho}
-          className="overflow-x-auto px-5 [scrollbar-width:none] sm:px-0 [&::-webkit-scrollbar]:hidden"
-        >
-          <div className="flex gap-2 pb-1">
-          <Chip tom="contorno" ativo={selecionada === null} onClick={() => aoSelecionar(null)}>
-            Todas
-          </Chip>
-
-          {naBarra.map((categoria) => (
-            <Chip
-              key={categoria.slug}
-              tom="contorno"
-              ativo={selecionada === categoria.slug}
-              contagem={categoria.bookCount ?? undefined}
-              onClick={() => escolher(categoria.slug)}
-            >
-              {categoria.name}
-            </Chip>
-          ))}
-
-          {foraDaBarra && (
-            <Chip
-              tom="contorno"
-              ativo
-              contagem={foraDaBarra.bookCount ?? undefined}
-              onClick={() => aoSelecionar(null)}
-            >
-              {foraDaBarra.name}
-            </Chip>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setAberto((valor) => !valor)}
-            aria-expanded={aberto}
-            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-borda-forte bg-superficie px-3.5 py-1.5 text-[13.5px] font-semibold text-tinta-2 transition hover:bg-creme"
+        {naBarra.map((categoria) => (
+          <Chip
+            key={categoria.slug}
+            tom="contorno"
+            ativo={selecionada === categoria.slug}
+            contagem={categoria.bookCount ?? undefined}
+            onClick={() => escolher(categoria.slug)}
           >
-            <SlidersHorizontal size={13} strokeWidth={2} />
-              Todas as categorias
-            </button>
-          </div>
-        </div>
-      </div>
+            {categoria.name}
+          </Chip>
+        ))}
+
+        {foraDaBarra && (
+          <Chip
+            tom="contorno"
+            ativo
+            contagem={foraDaBarra.bookCount ?? undefined}
+            onClick={() => aoSelecionar(null)}
+          >
+            {foraDaBarra.name}
+          </Chip>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setAberto((valor) => !valor)}
+          aria-expanded={aberto}
+          className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-borda-forte bg-superficie px-3.5 py-1.5 text-[13.5px] font-semibold text-tinta-2 transition hover:bg-creme"
+        >
+          <SlidersHorizontal size={13} strokeWidth={2} />
+            Todas as categorias
+          </button>
+      </TrilhoRolavel>
 
       {aberto && (
         <div

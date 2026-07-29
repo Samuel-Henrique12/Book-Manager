@@ -18,8 +18,9 @@ export function proxy(requisicao: NextRequest) {
   if (!token && !ehPublica) {
     return NextResponse.redirect(new URL("/login", requisicao.url));
   }
+  // Redirect Pra Home
   if (token && ehPublica && !ehLiberada) {
-    return NextResponse.redirect(new URL("/books", requisicao.url));
+    return NextResponse.redirect(new URL("/", requisicao.url));
   }
   return NextResponse.next();
 }

@@ -75,7 +75,7 @@ export default function PaginaLogin() {
         <ModalBoasVindas
           nome={boasVindas}
           aoConcluir={() => {
-            router.push("/books");
+            router.push("/");
             router.refresh();
           }}
         />

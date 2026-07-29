@@ -14,6 +14,7 @@ import Metrica from "@/components/ui/Metrica";
 import Painel from "@/components/ui/Painel";
 import Paginacao from "@/components/Paginacao";
 import Skeletons from "@/components/Skeletons";
+import TrilhoRolavel from "@/components/ui/TrilhoRolavel";
 
 type Aba = "TODOS" | StatusLeitura | "FAVORITOS";
 
@@ -105,23 +106,21 @@ export default function PaginaEstante() {
         />
       </div>
 
-      <div className="-mx-5 mb-6 overflow-x-auto px-5 sm:mx-0 sm:px-0">
-        <div className="flex gap-2 pb-1">
-          {ABAS.map(({ chave, rotulo }) => (
-            <Chip
-              key={chave}
-              ativo={aba === chave}
-              contagem={contar(chave)}
-              onClick={() => {
-                setAba(chave);
-                setPagina(0);
-              }}
-            >
-              {rotulo}
-            </Chip>
-          ))}
-        </div>
-      </div>
+      <TrilhoRolavel className="mb-6">
+        {ABAS.map(({ chave, rotulo }) => (
+          <Chip
+            key={chave}
+            ativo={aba === chave}
+            contagem={contar(chave)}
+            onClick={() => {
+              setAba(chave);
+              setPagina(0);
+            }}
+          >
+            {rotulo}
+          </Chip>
+        ))}
+      </TrilhoRolavel>
 
       {isPending ? (
         <Skeletons variante="grade" />
