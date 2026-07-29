@@ -385,15 +385,3 @@ Cada módulo tem seu próprio README: **[`backend/README.md`](./backend/README.m
 ## 🌐 Deploy
 
 Deploy gratuito, sem cartão, com **Vercel** (frontend) + **Render** (API) + **Neon** (banco), com auto-deploy a cada push. Passo a passo completo em **[`DEPLOY.md`](./DEPLOY.md)**.
-
----
-
-## 🔭 O que ficaria numa próxima versão
-
-Sem checkbox, porque nada disso está em andamento — é o que eu faria a seguir:
-
-- **Reescrever o teste ponta a ponta** para o contrato atual (confirmação de e-mail e escrita restrita a administrador) e ligá-lo num pipeline de CI.
-- **Refresh token com rotação** e revogação no logout, substituindo o access token único.
-- **Diário de leitura** append-only — hoje o progresso guarda a página atual, mas não o histórico de como se chegou nela.
-- **Testes de controller** (`@WebMvcTest`): a cobertura atual é forte em serviço e ausente na camada web.
-- **Rate limiting** nas rotas de autenticação e de e-mail.
