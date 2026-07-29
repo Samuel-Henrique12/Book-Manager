@@ -5,8 +5,9 @@ Uma estante social completa: catálogo de livros compartilhado, prateleiras por 
 > Desafio técnico full-stack. O escopo pedido — autenticação JWT e CRUD completo de livros — está inteiro na seção [Requisitos do desafio](#-requisitos-do-desafio); o resto do sistema foi construído por cima disso.
 
 > _Ambiente ao vivo:_
-> - **Frontend:** _(Vercel — preencher após o deploy)_
-> - **API:** _(Render — preencher após o deploy)_
+> - **Frontend:** https://book-manager-five-kappa.vercel.app
+> - **API:** https://book-manager-api-e8gt.onrender.com
+> - **Documentação (Swagger):** https://book-manager-api-e8gt.onrender.com/swagger-ui.html
 >
 > ⏱️ **O primeiro acesso pode levar de 30 a 60 segundos.** Nos planos gratuitos a API hiberna após 15 minutos sem uso e o banco escala a zero; a primeira requisição acorda os dois. Depois disso a navegação é normal.
 
@@ -23,8 +24,7 @@ Onde cada item pedido pelo enunciado está implementado:
 | **Busca** | `LivroRepository.buscar` (JPQL, `LOWER` + `LIKE`), com índice `ix_livro_titulo` | `GET /books?title=1984` |
 | **Paginação** | `RespostaPaginadaDTO` espelhando o `Page` do Spring Data | `GET /books?page=0&size=10&sort=title,asc` |
 | **`schema.sql` na raiz** | [`schema.sql`](./schema.sql) — 8 tabelas e 14 índices, espelho das migrations Flyway | `docker compose exec db psql -U bookmanager -d bookmanager -c '\dt'` |
-| **Documentação da API** | springdoc-openapi 2.8.6, com security scheme `bearer-jwt` | http://localhost:8080/swagger-ui.html |
-| **Frontend consumindo a API** | Next.js App Router, 12 rotas, guarda em `proxy.ts` | http://localhost:3000 |
+| **Documentação da API** | springdoc-openapi 2.8.6, com security scheme `bearer-jwt` | [Swagger Local](http://localhost:8080/swagger-ui.html) · [Swagger ao Vivo](https://book-manager-api-e8gt.onrender.com/swagger-ui.html) || **Frontend consumindo a API** | Next.js App Router, 12 rotas, guarda em `proxy.ts` | http://localhost:3000 |
 | **Deploy ao vivo** | Vercel + Render + Neon, blueprint em [`render.yaml`](./render.yaml) | Passo a passo em [`DEPLOY.md`](./DEPLOY.md) |
 | **Docker** | `docker-compose.yml` (banco + API + web + caixa de e-mail) | `docker compose up --build` |
 
@@ -189,7 +189,10 @@ Todas têm default de desenvolvimento em `backend/src/main/resources/application
 
 ## 📚 API
 
-Autenticação por `Authorization: Bearer <token>`. Tudo que não estiver marcado como público exige token. Documentação interativa em **`/swagger-ui.html`**.
+Autenticação por `Authorization: Bearer <token>`. Tudo que não estiver marcado como público exige token.
+Documentação interativa disponível no **Swagger**:
+- **Ambiente Local:** `http://localhost:8080/swagger-ui.html`
+- **Ambiente ao Vivo:** **[`https://book-manager-api-e8gt.onrender.com/swagger-ui.html`](https://book-manager-api-e8gt.onrender.com/swagger-ui.html)**
 
 **Autenticação** — público
 
