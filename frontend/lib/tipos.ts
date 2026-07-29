@@ -147,40 +147,8 @@ export interface LivroInput {
   pageCount?: number | null;
 }
 
-// TODO :
-// Contratos das Fases 3-5 do Backend (estante, avaliação e progresso)
-// Ainda não existem na API — os componentes que os consomem estão desativados
-
+// Status da Vaga na Estante
 export type StatusLeitura = "QUERO_LER" | "LENDO" | "LIDO" | "ABANDONADO";
-
-export interface EstanteItem {
-  status: StatusLeitura;
-  favorito: boolean;
-  nota: number | null;
-  paginaAtual: number | null;
-  totalPaginas: number | null;
-  categorias: string[];
-}
-
-export type TipoEvento =
-  | "ADICIONOU"
-  | "INICIOU"
-  | "TERMINOU"
-  | "AVALIOU"
-  | "FAVORITOU"
-  | "ABANDONOU"
-  | "PROGREDIU";
-
-export interface EventoTimeline {
-  id: string;
-  tipo: TipoEvento;
-  livroId: number;
-  livroTitulo: string;
-  quando: string;
-  nota?: number | null;
-  comentario?: string | null;
-  spoiler?: boolean;
-}
 
 // Perfil de Acesso
 export type Perfil = "USUARIO" | "ADMIN";

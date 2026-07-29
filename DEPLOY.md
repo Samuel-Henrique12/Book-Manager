@@ -12,17 +12,19 @@ Este guia publica o Book Manager ao vivo **de graça e sem cartão de crédito**
 
 Todos os três serviços fazem login **com a conta do GitHub** — não precisa criar senha nova.
 
+**A ordem importa.** O cadastro de usuário exige confirmação por e-mail, então o envio (passo 5) precisa estar de pé **antes** de você tentar criar a primeira conta (passo 7). Seguir o guia fora de ordem trava na tela de "confirme seu e-mail".
+
 ---
 
 ## 0. Pré-requisito: código no GitHub
 
-Os serviços fazem deploy a partir do repositório. Garanta que o código esteja no GitHub:
+Os serviços fazem deploy a partir do repositório:
 
 ```bash
-git push origin <sua-branch>
+git push origin main
 ```
 
-> Pode ser uma branch dedicada (ex.: `deploy`). A organização/divisão dos commits pode ser feita depois — o deploy só precisa que o código esteja lá.
+> O `render.yaml` fixa `branch: main`. Se quiser usar outra branch, ajuste o Blueprint ou troque depois em _Settings → Branch_ no Render.
 
 ---
 
@@ -40,19 +42,23 @@ git push origin <sua-branch>
 
    > **Três detalhes obrigatórios:** prefixo `jdbc:` no início; `?sslmode=require` no final; e **remover o `&channel_binding=require`** que o Neon inclui — é um parâmetro do `libpq` que o driver JDBC não usa. Usuário e senha saem da URL e vão para as variáveis próprias.
 
+Guarde também o acesso ao **SQL Editor** do Neon: ele será necessário no passo 7 para criar o primeiro administrador.
+
 ---
 
 ## 2. API — Render
 
-O repositório já traz um **`render.yaml`** (Blueprint) que configura o serviço automaticamente.
+O repositório já traz um **`render.yaml`** (Blueprint) que configura o serviço automaticamente — incluindo `healthCheckPath: /actuator/health` (o Render só considera o deploy pronto quando a API responde ali) e um `buildFilter` que evita rebuild quando o push só mexeu no frontend.
 
 1. Acesse **https://render.com** → entre com o GitHub.
 2. **New → Blueprint** → conecte este repositório → o Render lê o `render.yaml` e cria o serviço `book-manager-api`.
    - _(Alternativa manual: **New → Web Service** → repositório → **Runtime** = Docker → **Dockerfile Path** = `backend/Dockerfile` → **Docker Build Context Directory** = `backend`.)_
-3. Em **Environment**, preencha as variáveis marcadas como "sync: false":
+3. Em **Environment**, preencha as variáveis marcadas como `sync: false`:
    - `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` → valores do Neon (passo 1)
    - `CORS_ORIGENS` → deixe `http://localhost:3000` **por enquanto** (ajustamos no passo 4)
-   - `JWT_SECRET` já é gerado automaticamente; `JWT_EXPIRACAO` (`PT8H`) e `JAVA_TOOL_OPTIONS` já vêm definidos no Blueprint.
+   - `MAIL_API_KEY`, `MAIL_FROM`, `APP_URL_BASE` → passo 5
+   - `GOOGLE_BOOKS_API_KEY` → passo 6
+   - `JWT_SECRET` já é gerado automaticamente; `JWT_EXPIRACAO` (`PT8H`), `EMAIL_PROVEDOR` (`brevo`), os defaults do Google Books e o `JAVA_TOOL_OPTIONS` já vêm definidos no Blueprint.
 4. **Create** → aguarde o primeiro build (o Render compila o `Dockerfile`; leva alguns minutos).
 5. Ao terminar, copie a **URL pública** da API (ex.: `https://book-manager-api.onrender.com`).
    - Teste: abra `https://<sua-api>.onrender.com/swagger-ui.html`.
@@ -80,26 +86,7 @@ O repositório já traz um **`render.yaml`** (Blueprint) que configura o serviç
 
 ---
 
-## 5. Verificação
-
-1. Abra a URL da Vercel.
-2. Crie uma conta, faça login, cadastre e liste um livro.
-3. Se a primeira ação demorar, é o cold start (API/banco acordando) — repita após alguns segundos.
-
----
-
-## 6. Auto-deploy (a cada push)
-
-Ao conectar o repositório, Vercel e Render instalam o **GitHub App** (o equivalente moderno da _deploy key_). A partir daí:
-
-- **`git push`** na branch conectada → **Vercel** e **Render** detectam e **redeploiam automaticamente**.
-- Não é preciso configurar chave SSH manual; a autorização é feita pelo GitHub App na hora de conectar.
-
-Para trocar a branch que dispara o deploy: Render → _Settings → Branch_; Vercel → _Settings → Git → Production Branch_.
-
----
-
-## Envio de e-mail em produção
+## 5. Envio de e-mail (obrigatório antes de criar a primeira conta)
 
 O cadastro exige confirmação por e-mail e existe fluxo de redefinição de senha. Em desenvolvimento isso roda no **Mailpit** (SMTP falso no `docker-compose`), mas **em produção o SMTP não funciona**: o plano *free* do Render [bloqueia tráfego de saída nas portas 25, 465 e 587](https://render.com/changelog/free-web-services-will-no-longer-allow-outbound-traffic-to-smtp-ports).
 
@@ -110,12 +97,14 @@ Por isso a aplicação tem dois adaptadores, escolhidos por `EMAIL_PROVEDOR`:
 | `smtp` (padrão) | `ServicoEmailSmtp` — Mailpit | Local |
 | `brevo` | `ServicoEmailBrevo` — API HTTP em `api.brevo.com` (porta 443, não bloqueada) | Render |
 
+Com `SPRING_PROFILES_ACTIVE=prod`, a aplicação **se recusa a subir** com `EMAIL_PROVEDOR=smtp` — justamente para não ir ao ar com um envio que nunca funcionaria.
+
 ### Passo a passo (Brevo — 300 e-mails/dia, grátis, sem cartão)
 
 1. Criar conta em **[brevo.com](https://www.brevo.com/)** e confirmar o e-mail de cadastro.
 2. **Verificar um remetente**: _Senders, Domains & Dedicated IPs → Senders → Add a sender_. Informe um e-mail seu; a Brevo manda um código de validação. Sem remetente verificado, todo envio é recusado.
 3. **Gerar a chave**: _menu do perfil → SMTP & API → API Keys → Generate a new API key_. Copie na hora — ela não é exibida de novo.
-4. No Render, em _Environment_, preencher as variáveis marcadas como `sync: false` no Blueprint:
+4. No Render, em _Environment_, preencher:
    - `MAIL_API_KEY` = a chave gerada
    - `MAIL_FROM` = o e-mail verificado no passo 2
    - `APP_URL_BASE` = a URL da Vercel, **sem barra no final**
@@ -143,24 +132,70 @@ Brevo recusou o envio de '...' — HTTP 401 — remetente '...' — resposta: {"
 
 ---
 
+## 6. Chave do Google Books (recomendado)
+
+O acervo é populado pela Google Books API. **Sem chave a importação ainda funciona**, mas com a cota anônima por IP — que, num IP compartilhado como o do plano gratuito do Render, se esgota rápido e devolve 429.
+
+1. Acesse o **[Google Cloud Console](https://console.cloud.google.com/)** → crie um projeto (ou use um existente).
+2. _APIs e serviços → Biblioteca_ → busque **Books API** → **Ativar**.
+3. _APIs e serviços → Credenciais_ → **Criar credenciais → Chave de API** → copie.
+4. Recomendado: em **Restringir chave**, limite a *Books API*. A cota gratuita é de mil requisições por dia.
+5. No Render, preencha `GOOGLE_BOOKS_API_KEY`.
+
+Os outros parâmetros já vêm no Blueprint e podem ser ajustados: `GOOGLE_BOOKS_IDIOMA` (`pt`), `GOOGLE_BOOKS_MAX_POR_TEMA` (`200`) e, se quiser escolher os assuntos, `GOOGLE_BOOKS_TEMAS` com uma lista separada por vírgulas (vazio usa os 20 temas padrão).
+
+---
+
+## 7. Primeira conta, primeiro administrador e verificação
+
+1. Abra a URL da Vercel e **crie sua conta**.
+2. **Confirme pelo e-mail** que chegou (é o passo 5 em ação). O link já abre a sessão.
+3. **Promova a conta a administrador.** O primeiro `ADMIN` não existe por padrão — sem ele o painel de usuários, a importação do catálogo e a moderação de spoiler ficam inacessíveis. No **SQL Editor do Neon**:
+
+   ```sql
+   UPDATE usuario SET perfil = 'ADMIN' WHERE email = 'seu@email.com';
+   ```
+
+   Saia e entre de novo para o token refletir o novo perfil. Daí em diante você promove outras contas pela própria tela `/admin/usuarios`.
+4. **Popule o acervo:** em `/admin/usuarios`, dispare a importação do Google Books e acompanhe o progresso na tela. Ela roda em segundo plano.
+5. Confira o resto: buscar no acervo, abrir um livro, marcar na estante, avaliar e comentar.
+
+> Se a primeira ação demorar, é o cold start (API e banco acordando) — repita após alguns segundos.
+
+---
+
+## 8. Auto-deploy (a cada push)
+
+Ao conectar o repositório, Vercel e Render instalam o **GitHub App** (o equivalente moderno da _deploy key_). A partir daí:
+
+- **`git push`** na branch conectada → **Vercel** e **Render** detectam e **redeploiam automaticamente**.
+- Não é preciso configurar chave SSH manual; a autorização é feita pelo GitHub App na hora de conectar.
+
+Para trocar a branch que dispara o deploy: Render → _Settings → Branch_; Vercel → _Settings → Git → Production Branch_.
+
+---
+
 ## Resumo das variáveis de ambiente
 
 **Render (API):**
-| Variável | Exemplo |
-|---|---|
-| `SPRING_PROFILES_ACTIVE` | `prod` |
-| `DB_URL` | `jdbc:postgresql://ep-xxx.neon.tech/neondb?sslmode=require` |
-| `DB_USERNAME` | `neondb_owner` |
-| `DB_PASSWORD` | `••••••` |
-| `JWT_SECRET` | _(gerado pelo Render)_ |
-| `JWT_EXPIRACAO` | `PT8H` |
-| `CORS_ORIGENS` | `https://book-manager.vercel.app` |
-| `EMAIL_PROVEDOR` | `brevo` |
-| `MAIL_API_KEY` | `xkeysib-••••••` |
-| `MAIL_FROM` | `seu-remetente-verificado@gmail.com` |
-| `MAIL_FROM_NOME` | `Book Manager` |
-| `APP_URL_BASE` | `https://book-manager.vercel.app` |
-| `JAVA_TOOL_OPTIONS` | `-XX:MaxRAMPercentage=70.0 -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1` |
+| Variável | Exemplo | Origem |
+|---|---|---|
+| `SPRING_PROFILES_ACTIVE` | `prod` | Blueprint |
+| `DB_URL` | `jdbc:postgresql://ep-xxx.neon.tech/neondb?sslmode=require` | Neon (passo 1) |
+| `DB_USERNAME` | `neondb_owner` | Neon |
+| `DB_PASSWORD` | `••••••` | Neon |
+| `JWT_SECRET` | _(gerado pelo Render)_ | Blueprint |
+| `JWT_EXPIRACAO` | `PT8H` | Blueprint |
+| `CORS_ORIGENS` | `https://book-manager.vercel.app` | Vercel (passo 4) |
+| `EMAIL_PROVEDOR` | `brevo` | Blueprint |
+| `MAIL_API_KEY` | `xkeysib-••••••` | Brevo (passo 5) |
+| `MAIL_FROM` | `seu-remetente-verificado@gmail.com` | Brevo |
+| `MAIL_FROM_NOME` | `Book Manager` | Blueprint |
+| `APP_URL_BASE` | `https://book-manager.vercel.app` | Vercel (passo 5) |
+| `GOOGLE_BOOKS_API_KEY` | `AIza••••••` | Google Cloud (passo 6) |
+| `GOOGLE_BOOKS_IDIOMA` | `pt` | Blueprint |
+| `GOOGLE_BOOKS_MAX_POR_TEMA` | `200` | Blueprint |
+| `JAVA_TOOL_OPTIONS` | `-XX:MaxRAMPercentage=70.0 -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1` | Blueprint |
 
 > Com `SPRING_PROFILES_ACTIVE=prod`, a aplicação **se recusa a iniciar** se `JWT_SECRET` estiver ausente, curto demais ou com o valor de exemplo do repositório. É proposital: subir com o segredo padrão permitiria a qualquer pessoa forjar um token válido.
 
