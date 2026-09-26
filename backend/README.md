@@ -120,7 +120,7 @@ Para mudar o schema:
 
 1. Crie `V6__descricao_curta.sql` em `src/main/resources/db/migration/`. Nunca edite uma migration já aplicada — o Flyway valida o checksum e recusa subir.
 2. Ajuste a entidade correspondente.
-3. **Atualize o [`schema.sql`](../schema.sql) da raiz**, que é o script consolidado entregue com o desafio. Ele não é gerado automaticamente; se esquecer, os dois divergem em silêncio.
+3. **Atualize o [`schema.sql`](../schema.sql) da raiz**, que é o script consolidado de criação limpa. Ele não é gerado automaticamente; se esquecer, os dois divergem em silêncio.
 4. Suba a API. Se `validate` passar, entidade e banco estão de acordo.
 
 Índice único em tabela com soft delete **precisa ser parcial**:

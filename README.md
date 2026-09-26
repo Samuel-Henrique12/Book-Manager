@@ -2,8 +2,6 @@
 
 Uma estante social completa: catálogo de livros compartilhado, prateleiras por status de leitura, avaliações com resenha, conversa por livro e acompanhamento de progresso. Construída com **Spring Boot** (Java 21) e **Next.js** (React 19) sobre **PostgreSQL**, com o acervo alimentado pela **Google Books API**.
 
-> Desafio técnico full-stack. O escopo pedido — autenticação JWT e CRUD completo de livros — está inteiro na seção [Requisitos do desafio](#-requisitos-do-desafio); o resto do sistema foi construído por cima disso.
-
 > _Ambiente ao vivo:_
 > - **Frontend:** https://book-manager-five-kappa.vercel.app
 > - **API:** https://book-manager-api-e8gt.onrender.com
@@ -13,28 +11,29 @@ Uma estante social completa: catálogo de livros compartilhado, prateleiras por 
 
 ---
 
-## ✅ Requisitos do desafio
+## ✅ Núcleo do sistema
 
-Onde cada item pedido pelo enunciado está implementado:
+Onde cada peça central está implementada:
 
-| Requisito | Implementação | Como verificar |
+| Recurso | Implementação | Como verificar |
 |---|---|---|
 | **Autenticação JWT** | `autenticacao/seguranca/` — `FiltroAutenticacaoJwt` (`OncePerRequestFilter`), `ConfiguracaoSeguranca` (chain stateless), `ServicoTokenJwt` (jjwt) | `POST /auth/login` devolve o token; qualquer rota fora de `/auth/**` sem `Authorization` responde **401** em `application/problem+json` |
 | **CRUD completo de livros** | `livro/LivroController` + `LivroService` | `POST /books/create` · `GET /books` · `GET /books/{id}` · `PUT /books/{id}` · `DELETE /books/{id}` |
 | **Busca** | `LivroRepository.buscar` (JPQL, `LOWER` + `LIKE`), com índice `ix_livro_titulo` | `GET /books?title=1984` |
 | **Paginação** | `RespostaPaginadaDTO` espelhando o `Page` do Spring Data | `GET /books?page=0&size=10&sort=title,asc` |
 | **`schema.sql` na raiz** | [`schema.sql`](./schema.sql) — 8 tabelas e 14 índices, espelho das migrations Flyway | `docker compose exec db psql -U bookmanager -d bookmanager -c '\dt'` |
-| **Documentação da API** | springdoc-openapi 2.8.6, com security scheme `bearer-jwt` | [Swagger Local](http://localhost:8080/swagger-ui.html) · [Swagger ao Vivo](https://book-manager-api-e8gt.onrender.com/swagger-ui.html) || **Frontend consumindo a API** | Next.js App Router, 12 rotas, guarda em `proxy.ts` | http://localhost:3000 |
+| **Documentação da API** | springdoc-openapi 2.8.6, com security scheme `bearer-jwt` | [Swagger Local](http://localhost:8080/swagger-ui.html) · [Swagger ao Vivo](https://book-manager-api-e8gt.onrender.com/swagger-ui.html) |
+| **Frontend consumindo a API** | Next.js App Router, 12 rotas, guarda em `proxy.ts` | http://localhost:3000 |
 | **Deploy ao vivo** | Vercel + Render + Neon, blueprint em [`render.yaml`](./render.yaml) | Passo a passo em [`DEPLOY.md`](./DEPLOY.md) |
 | **Docker** | `docker-compose.yml` (banco + API + web + caixa de e-mail) | `docker compose up --build` |
 
-**Detalhe de contrato:** o enunciado define os payloads em inglês (`title`, `author`, `year`…) e o código segue a nomenclatura PT-BR do projeto. A ponte é `@JsonProperty` nos DTOs — o contrato HTTP é inglês, o domínio Java é português, sem tradutor manual no meio.
+**Detalhe de contrato:** a API expõe os payloads em inglês (`title`, `author`, `year`…) e o código segue a nomenclatura PT-BR do projeto. A ponte é `@JsonProperty` nos DTOs — o contrato HTTP é inglês, o domínio Java é português, sem tradutor manual no meio.
 
 ---
 
-## 🚀 Além do escopo
+## 🚀 Funcionalidades
 
-O que foi construído depois de o MVP estar de pé:
+O que o leitor encontra por cima do núcleo:
 
 | Recurso | O que faz |
 |---|---|
@@ -294,7 +293,7 @@ erDiagram
 ```
 
 - **Flyway** é a fonte da verdade (`V1` a `V5`, em `backend/src/main/resources/db/migration/`). O Hibernate roda com `ddl-auto: validate` — nunca altera estrutura.
-- **[`schema.sql`](./schema.sql)** na raiz é o script consolidado de criação limpa, mantido em sincronia com as migrations (entregável do desafio).
+- **[`schema.sql`](./schema.sql)** na raiz é o script consolidado de criação limpa, mantido em sincronia com as migrations.
 - **Exclusão é lógica** em todas as entidades: `@SoftDelete(columnName = "removido")` no `@MappedSuperclass` comum.
 - **Cinco índices únicos parciais** com `WHERE removido = FALSE`. É essa cláusula que faz soft delete e unicidade conviverem: sem ela, uma conta excluída bloquearia para sempre o recadastro com o mesmo e-mail.
 - **Auditoria automática** (`criado_em`, `atualizado_em`, `criado_por`, `atualizado_por`) via Spring Data JPA Auditing.
