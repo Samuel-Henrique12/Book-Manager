@@ -9,7 +9,7 @@ Uma estante social completa: catálogo de livros compartilhado, prateleiras por 
 > - **API:** https://book-manager-api-e8gt.onrender.com
 > - **Documentação (Swagger):** https://book-manager-api-e8gt.onrender.com/swagger-ui.html
 >
-> ⏱️ **O primeiro acesso pode levar de 30 a 60 segundos.** Nos planos gratuitos a API hiberna após 15 minutos sem uso e o banco escala a zero; a primeira requisição acorda os dois. Depois disso a navegação é normal.
+> ⏱️ **Entre 00h e 07h (horário de Brasília) o primeiro acesso pode levar de 30 a 60 segundos.** No plano gratuito a API hiberna após 15 minutos sem uso; um ping agendado a mantém acordada no resto do dia (ver [`DEPLOY.md`](./DEPLOY.md#8-manter-a-api-acordada-em-horário-de-pico)).
 
 ---
 

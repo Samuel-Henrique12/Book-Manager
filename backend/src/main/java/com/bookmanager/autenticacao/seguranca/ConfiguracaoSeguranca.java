@@ -39,7 +39,8 @@ public class ConfiguracaoSeguranca {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
-            "/actuator/health"
+            "/actuator/health",
+            "/actuator/health/liveness"
     };
 
     private final FiltroAutenticacaoJwt filtroAutenticacaoJwt;

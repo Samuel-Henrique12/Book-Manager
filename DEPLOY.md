@@ -8,7 +8,7 @@ Este guia publica o Book Manager ao vivo **de graça e sem cartão de crédito**
 | API (Spring Boot / Docker) | **Render** | Grátis (750h/mês), roda o `Dockerfile`, auto-deploy via GitHub |
 | Banco (PostgreSQL) | **Neon** | Grátis **permanente** (o Postgres grátis do Render expira em 30 dias) |
 
-> **Cold start:** no plano gratuito a API "dorme" após 15 min sem uso e o banco escala a zero. A **primeira requisição** após ociosidade pode levar ~30–60s. Normal para demo/portfólio.
+> **Cold start:** no plano gratuito a API "dorme" após 15 min sem uso e o banco escala a zero. Um ping agendado (passo 8) mantém a API acordada das **07h às 00h (horário de Brasília)**; só na madrugada a **primeira requisição** pode levar ~30–60s.
 
 Todos os três serviços fazem login **com a conta do GitHub** — não precisa criar senha nova.
 
@@ -164,7 +164,26 @@ Os outros parâmetros já vêm no Blueprint e podem ser ajustados: `GOOGLE_BOOKS
 
 ---
 
-## 8. Auto-deploy (a cada push)
+## 8. Manter a API acordada em horário de pico
+
+O Render free hiberna o serviço após 15 min sem requisição. Um ping a cada 10 min, só no horário de uso, evita o cold start sem gastar a cota de madrugada.
+
+O alvo é **`/actuator/health/liveness`**, e não `/actuator/health`: este último checa o banco, e cada ping acordaria o Neon junto, consumindo a cota de compute dele (100 CU-h/mês). O liveness responde só com o estado da JVM; o Neon acorda em menos de um segundo quando um usuário de verdade chega.
+
+1. Crie uma conta gratuita em **[cron-job.org](https://cron-job.org)** → **Create cronjob**.
+2. **URL:** `https://<sua-api>.onrender.com/actuator/health/liveness` (método `GET`).
+3. **Execution schedule → Custom** → no campo **Crontab expression**, digite `*/10 7-23 * * *` (a cada 10 min, das 07h às 23h50, todos os dias). Os seletores de dias/meses/horas se ajustam sozinhos; confira em **Next executions**.
+4. **Advanced → Time zone:** `America/Sao_Paulo` · **Request method:** `GET` · **Timeout:** `30s`.
+5. _(Opcional)_ Em **Notify me when...**, deixe ligado o aviso quando a execução falhar.
+6. **Test run** → deve responder `200` com `{"status":"UP"}`.
+
+Resultado: a API fica acordada das 07h às ~00h e dorme das 00h às 07h. São ~17h/dia × 30 ≈ **510h/mês**, dentro das 750h gratuitas do Render.
+
+> O endpoint precisa estar no ar antes de criar o job — ele depende de `management.endpoint.health.probes.enabled` no `application.yml` e da rota pública em `ConfiguracaoSeguranca`.
+
+---
+
+## 9. Auto-deploy (a cada push)
 
 Ao conectar o repositório, Vercel e Render instalam o **GitHub App** (o equivalente moderno da _deploy key_). A partir daí:
 
