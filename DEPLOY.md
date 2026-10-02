@@ -181,6 +181,20 @@ Resultado: a API fica acordada das 07h às ~00h e dorme das 00h às 07h. São ~1
 
 > O endpoint precisa estar no ar antes de criar o job — ele depende de `management.endpoint.health.probes.enabled` no `application.yml` e da rota pública em `ConfiguracaoSeguranca`.
 
+### Acordar a API de manhã (Deploy Hook)
+
+O ping **mantém** a API acordada, mas **não a acorda**: com o serviço hibernado, as requisições do cron-job.org recebem `503` do proxy do Render e nenhum boot é disparado (nos logs não aparece `Started BookManagerApplication`). Sem um segundo job, o primeiro ping das 07h falha, os seguintes também, e o cron-job.org desativa o job depois de 26 falhas seguidas.
+
+A solução é um deploy agendado pouco antes do primeiro ping. O Deploy Hook sobe o serviço por fora do proxy HTTP:
+
+1. No Render: **book-manager-api → Settings → Deploy Hook** → copie a URL. **Ela é secreta**: quem tiver a URL consegue disparar deploys.
+2. No cron-job.org, crie outro job, **Book Manager – wake-up**:
+   - **URL:** a do Deploy Hook · **Request method:** `POST`
+   - **Crontab expression:** `45 6 * * *` (todo dia às 06h45) · **Time zone:** `America/Sao_Paulo`
+3. Às 06h45 o deploy começa: são ~3 min de build e ~1,5 min de boot, então a API fica no ar antes das 07h. A partir daí o ping de liveness a mantém acordada.
+
+Custo: um deploy por dia, de ~3 min, dá **~90 min/mês** dos minutos de pipeline do plano gratuito.
+
 ---
 
 ## 9. Auto-deploy (a cada push)
